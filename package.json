@@ -2,9 +2,9 @@
   "name": "farmee",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/server.js",
+  "main": "./src/index.js",
   "scripts": {
-    "start": "node /src/server.js"
+    "start": "node ./scr/index.js"
   },
   "author": "deepak chawla",
   "license": "ISC",
