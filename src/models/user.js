@@ -53,10 +53,10 @@ const userSchema = mongoose.Schema({
         default: false
     },
     address:{
-        houseNO: {type: String},
-        city: {type: String},
-        state: {type: String},
-        country: {type: String}
+        type: String
+    },
+    cloudinaryId:{
+        type: String
     }
 },
 {timestamps: true}

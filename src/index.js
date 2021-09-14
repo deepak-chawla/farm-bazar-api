@@ -9,6 +9,7 @@ const shopRouter = require('./routes/shop');
 const categoryRouter = require('./routes/category');
 const productRouter = require('./routes/product');
 const cartRouter = require('./routes/cart');
+const profileRouter = require('./routes/profile');
 
 
 mongoose.connect(
@@ -32,6 +33,7 @@ app.use('/api', categoryRouter);
 app.use('/api', productRouter);
 app.use('/api', cartRouter);
 app.use('/api', shopRouter);
+app.use('/api', profileRouter);
 
 app.listen(process.env.PORT, ()=>{
     console.log(`Server running on port ${process.env.PORT}`);
