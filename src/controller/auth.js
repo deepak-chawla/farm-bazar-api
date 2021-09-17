@@ -108,11 +108,11 @@ exports.signin = (req, res) => {
 
           if (isPassword) {
             const token = generateJwtToken(user._id, user.email);
-            const { firstName, lastName, email, username } = user;
+            const { _id, firstName, lastName, fullName, email } = user;
 
             res.status(200).json({
               token,
-              user: { firstName, lastName, email, username }
+              user: { _id, firstName, lastName, fullName, email }
             });
           }
           else {

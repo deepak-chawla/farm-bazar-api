@@ -8,7 +8,7 @@ exports.createShop = async (req, res) => {
         shopName,
         description,
     });
-
+    
     const user = await User.findById(req.user._id);
     if (!user.isSeller) {
         _shop.save((err, shop) => {

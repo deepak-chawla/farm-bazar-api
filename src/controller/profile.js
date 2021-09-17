@@ -3,7 +3,8 @@ const cloudinary = require("../utils/cloudinary");
 const path = require('path');
 
 exports.editProfile = async (req, res) => {
-  const result = [];
+  let result = [];
+  console.log(req.user._id)
   const user = await User.findById({ _id: req.user._id });
   if (user) {
     if(req.file){
