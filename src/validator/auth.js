@@ -4,6 +4,9 @@ exports.isValidateSignUp = [
     check('firstName').notEmpty().withMessage("First Name is Required"),
     check('lastName').notEmpty().withMessage("Last Name is Required"),
     check('email').isEmail().withMessage("Valid Email is Required"),
+    check('contactNumber').notEmpty().withMessage("Contact Number is Required"),
+    check('dateOfBirth').notEmpty().withMessage("Date of Birth is Required"),
+    check('gender').notEmpty().withMessage("Gender is Required"),
     check('password').isLength({min: 5}).withMessage("Password must be atleat 5 character long")
 ];
 

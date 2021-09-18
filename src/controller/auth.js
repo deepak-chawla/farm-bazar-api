@@ -19,15 +19,24 @@ exports.signup = (req, res) => {
         message: "User already registered",
       });
     } else {
-      const { firstName, lastName, email, password } = req.body;
+      const { firstName, lastName, contactNumber, email, password, gender, 
+        dateOfBirth, province, city, address, postalCode } = req.body;
       const hash_password = await bcrypt.hash(password, 10);
 
       const _user = new User({
         firstName,
         lastName,
+        contactNumber,
         email,
         hash_password,
-        username: shortid.generate()
+        gender,
+        dateOfBirth,
+        address:{
+          province: province,
+          city: city,
+          homeTown: address,
+          postalCode: postalCode
+        }
       });
 
       _user.save((error, user) => {
@@ -40,7 +49,6 @@ exports.signup = (req, res) => {
         if (user) {
           const token = generateJwtToken(user._id, user.email);
           sendMail(user.email, token);
-
           return res.status(201).json({
             status: 'Success',
             message: 'User Created Please Check Your Email to Verify'
@@ -55,7 +63,7 @@ exports.signup = (req, res) => {
 exports.verifyEmail = async (req, res) => {
   const { token } = req.params;
   const decode = jwt.decode(token, process.env.JWT_KEY)
-  const user = await User.findById({ _id: decode._id });
+  const user = await User.findOne({ email: decode.email });
 
   if (user) {
     user.isActive = true;

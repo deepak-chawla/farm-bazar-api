@@ -16,13 +16,45 @@ const userSchema = mongoose.Schema({
         min: 3,
         max: 20
     },
-    username:{
+    gender:{
+        type: String,
+        enum: [ 'male', 'female' ],
+        required: true,
+        lowercase: true
+    },
+    dateOfBirth: {
+        type: String,
+        required: true,
+    },
+    profilePicture: {
+        type: String,
+        default: ""
+    },
+    address:{
+        province:{
+            type: String,
+            required: true,
+            trim: true,
+        },
+        city:{
+            type: String,
+            required: true,
+            trim: true,
+        },
+        homeTown:{
+            type: String,
+            required: true,
+        },
+        postalCode:{
+            type: Number,
+            required: true,
+            trim: true,
+        }
+    },
+    contactNumber: {
         type: String,
         required: true,
         trim: true,
-        unique: true,
-        index: true,
-        lowercase: true
     },
     email:{
         type: String,
@@ -35,28 +67,19 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    isSeller:{
-        type: Boolean,
-        default: false
-    },
     shopId:{
         type: mongoose.Schema.Types.ObjectId, ref: 'Shop'
     },
-    contactNumber: {
-        type: String
-    },
-    profilePicture: {
+    cloudinaryId:{
         type: String
     },
     isActive: {
         type: Boolean,
         default: false
     },
-    address:{
-        type: String
-    },
-    cloudinaryId:{
-        type: String
+    isSeller:{
+        type: Boolean,
+        default: false
     }
 },
 {timestamps: true}

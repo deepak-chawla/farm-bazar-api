@@ -15,7 +15,7 @@ exports.sendMail = ( email, token ) => {
       from: `farmbazar@support.com`,
       to: `${email}`,
       subject: 'Farm Bazar Email Verification',
-      html: `<h1>This is your verification link </h1><a>http://localhost:3000/auth/verify/${token}</a>`
+      html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`
     };
     
     transporter.sendMail(mailOptions, function(error, info){
