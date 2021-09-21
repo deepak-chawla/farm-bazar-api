@@ -26,12 +26,26 @@ exports.editProfile = async (req, res) => {
 
 
 exports.profile = async (req, res) => {
-  User.findById({_id: req.user._id},(err,user)=>{
+  User.findById({_id: req.user._id},(err,usr)=>{
     if(err){
-      res.status(400).json(err);
+      
     }
     else{
-     res.status(200).json(user);   
+     const user = {
+       firstName: usr.firstName,
+       lastName: usr.lastName,
+       fullName: usr.fullName,
+       email: usr.email,
+       contactNumber: usr.contactNumber,
+       dateOfBirth: usr.dateOfBirth,
+       gender: usr.gender,
+       profilePicture: usr.profilePicture,
+       postalCode: usr.postalCode,
+       address: usr.address,
+       city: usr.city,
+       province: usr.province,
+      };   
+      res.status(200).json(user);
     }
   })
 }

@@ -2,23 +2,23 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = mongoose.Schema({
-    firstName:{
+    firstName: {
         type: String,
         required: true,
         trim: true,
         min: 3,
         max: 20
     },
-    lastName:{
+    lastName: {
         type: String,
         required: true,
         trim: true,
         min: 3,
         max: 20
     },
-    gender:{
+    gender: {
         type: String,
-        enum: [ 'male', 'female' ],
+        enum: ['male', 'female'],
         required: true,
         lowercase: true
     },
@@ -30,69 +30,71 @@ const userSchema = mongoose.Schema({
         type: String,
         default: ""
     },
-    address:{
-        province:{
-            type: String,
-            required: true,
-            trim: true,
-        },
-        city:{
-            type: String,
-            required: true,
-            trim: true,
-        },
-        homeTown:{
-            type: String,
-            required: true,
-        },
-        postalCode:{
-            type: Number,
-            required: true,
-            trim: true,
-        }
+    province: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    city: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    address: {
+        type: String,
+        required: true,
+    },
+    postalCode: {
+        type: Number,
+        required: true,
+        trim: true,
     },
     contactNumber: {
         type: String,
         required: true,
         trim: true,
     },
-    email:{
+    email: {
         type: String,
         required: true,
         trim: true,
         unique: true,
         lowercase: true
     },
-    hash_password:{
+    hash_password: {
         type: String,
         required: true
     },
-    shopId:{
+    shopId: {
         type: mongoose.Schema.Types.ObjectId, ref: 'Shop'
     },
-    cloudinaryId:{
+    cloudinaryId: {
         type: String
     },
     isActive: {
         type: Boolean,
         default: false
     },
-    isSeller:{
+    isSeller: {
         type: Boolean,
         default: false
+    },
+    otp: {
+        code: { type: Number },
+        isRight: { type: Boolean, default: false }
     }
 },
-{timestamps: true}
+    { timestamps: true }
 );
 
-userSchema.virtual("fullName").get(function (){
+userSchema.virtual("fullName").get(function () {
     return `${this.firstName} ${this.lastName}`;
 });
 
 userSchema.methods = {
-    authenticate: function(password){
+    authenticate: function (password) {
         return bcrypt.compareSync(password, this.hash_password);
     },
 };
 
-module.exports = mongoose.model('User',userSchema);
+module.exports = mongoose.model('User', userSchema);
