@@ -148,12 +148,12 @@ exports.reSendVerifyLink = (req, res) => {
 
 //=====================================VERIFY OTP==================================================
 
-exports.verifyOtp = async (req, res) => {
-  const user = await User.findOne({'otp.code': req.body.code});
-  if(user){
-    user.otp.isRight = true;
-  }
-}
+// exports.verifyOtp = async (req, res) => {
+//   const user = await User.findOne({'otp.code': req.body.code});
+//   if(user){
+//     user.otp.isRight = true;
+//   }
+// }
 
 
 //=======================================SIGN IN===================================================
