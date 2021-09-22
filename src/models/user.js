@@ -18,7 +18,7 @@ const userSchema = mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female'],
+        enum: ["male", "female"],
         required: true,
         lowercase: true
     },
@@ -79,10 +79,6 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    otp: {
-        code: { type: Number },
-        isRight: { type: Boolean, default: false }
-    }
 },
     { timestamps: true }
 );

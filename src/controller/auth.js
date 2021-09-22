@@ -12,14 +12,20 @@ const generateJwtToken = (_id, email, expireTime) => {
 //======================================SIGN UP==========================================
 
 exports.signup = (req, res) => {
-  User.findOne({ email: req.body.email }).exec(async (error, user) => {
+  User.findOne({ email: req.body.email }).exec(async(error, user) => {
+    if(error){
+      return res.status(400).json({
+        status: 'Fail',
+        message: error.message
+      });
+    }
     if (user) {
       return res.status(400).json({
         status: 'Fail',
         message: "User already registered",
       });
     } else {
-      const { firstName, lastName, contactNumber, email, password, gender, 
+      const { firstName, lastName, contactNumber, email, password, gender,
         dateOfBirth, province, city, address, postalCode } = req.body;
       const hash_password = await bcrypt.hash(password, 10);
 
@@ -41,7 +47,7 @@ exports.signup = (req, res) => {
         if (error) {
           return res.status(400).json({
             status: 'Fail',
-            error
+            message: error.message
           });
         }
         if (user) {
@@ -53,9 +59,9 @@ exports.signup = (req, res) => {
             subject: 'Farm Bazar Email Verification',
             html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`
           };
-          
-          sendMail(data);
-          
+
+          //sendMail(data);
+          console.log(data);
           return res.status(201).json({
             status: 'Success',
             message: 'User Created Please Check Your Email to Verify'
@@ -158,43 +164,39 @@ exports.reSendVerifyLink = (req, res) => {
 
 //=======================================SIGN IN===================================================
 
-exports.signin = (req, res) => {
-  User.findOne({ email: req.body.email })
-    .exec((error, user) => {
-      if (error) {
-        res.status(400).json({
-          status: 'Fail',
-          messege: error
+exports.signin = async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (user) {
+    if (user.isActive) {
+      const isPassword = user.authenticate(req.body.password);
+      if (isPassword) {
+        const token = generateJwtToken(user._id, user.email);
+        const { _id, fullName, email } = user;
+
+        res.status(200).json({
+          status: "Success",
+          message: "User Successfully Logged In",
+          token,
+          user: { _id, fullName, email }
         });
-      } else {
-        if (user.isActive) {
-          const isPassword = user.authenticate(req.body.password);
-
-          if (isPassword) {
-            const token = generateJwtToken(user._id, user.email);
-            const { _id, fullName, email } = user;
-
-            res.status(200).json({
-              status: "Success",
-              message: "User Successfully Logged In",
-              token,
-              user: { _id, fullName, email }
-            });
-          }
-          else {
-            return res.status(400).json({
-              status: 'Fail',
-              message: "Password Incorrect"
-            });
-          }
-
-        }
-        else {
-          return res.status(400).json({
-            status: 'Success',
-            messege: "Please Activate Your Account"
-          });
-        }
       }
+      else {
+        return res.status(400).json({
+          status: 'Fail',
+          message: "Password Incorrect"
+        });
+      }
+    }
+    else {
+      return res.status(200).json({
+        status: 'Success',
+        messege: "Please Activate Your Account"
+      });
+    }
+  }else{
+    return res.status(400).json({
+      status: 'Fail',
+      messege: "User Not Found"
     });
+  }
 };
