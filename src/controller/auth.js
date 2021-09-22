@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { sendMail } = require('../helpers');
-const otpGenerator = require('otp-generator');
 
 const generateJwtToken = (_id, email, expireTime) => {
   return jwt.sign({ _id, email }, process.env.JWT_KEY, {
@@ -113,39 +112,39 @@ exports.reSendVerifyLink = (req, res) => {
 
 //==================================FORGET PASSWORD======================================
 
-exports.forgetPassword = (req, res) => {
-  User.findOne({ email: req.body.email }).exec((err, user) => {
-    if (user) {
+// exports.forgetPassword = (req, res) => {
+//   User.findOne({ email: req.body.email }).exec((err, user) => {
+//     if (user) {
 
-      const OTP = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
+//       const OTP = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
 
-      user.otp.code = OTP;
-      user.save();
+//       user.otp.code = OTP;
+//       user.save();
 
-      const data = {
-        from: `farmbazar@support.com`,
-        to: `${user.email}`,
-        subject: 'Password Reset',
-        html: `<h1>Verification Code is:</h1><h3>${user.otp.code}</h3>`
-      };
+//       const data = {
+//         from: `farmbazar@support.com`,
+//         to: `${user.email}`,
+//         subject: 'Password Reset',
+//         html: `<h1>Verification Code is:</h1><h3>${user.otp.code}</h3>`
+//       };
 
-      console.log(OTP);
+//       console.log(OTP);
 
-      sendMail(data);
+//       sendMail(data);
 
-      return res.status(200).json({
-        status: 'Success',
-        message: 'Please check your email for verification code'
-      });
-    }
-    else {
-      return res.status(400).json({
-        status: 'Fail',
-        message: 'This email is not found in our record, Please register'
-      });
-    }
-  });
-}
+//       return res.status(200).json({
+//         status: 'Success',
+//         message: 'Please check your email for verification code'
+//       });
+//     }
+//     else {
+//       return res.status(400).json({
+//         status: 'Fail',
+//         message: 'This email is not found in our record, Please register'
+//       });
+//     }
+//   });
+// }
 
 //=====================================VERIFY OTP==================================================
 
@@ -176,6 +175,8 @@ exports.signin = (req, res) => {
             const { _id, fullName, email } = user;
 
             res.status(200).json({
+              status: "Success",
+              message: "User Successfully Logged In",
               token,
               user: { _id, fullName, email }
             });
