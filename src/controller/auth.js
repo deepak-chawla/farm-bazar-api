@@ -60,8 +60,8 @@ exports.signup = (req, res) => {
             html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`
           };
 
-          //sendMail(data);
-          console.log(data);
+          sendMail(data);
+          
           return res.status(201).json({
             status: 'Success',
             message: 'User Created Please Check Your Email to Verify'
