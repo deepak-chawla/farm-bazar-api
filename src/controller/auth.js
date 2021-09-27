@@ -3,25 +3,23 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { sendMail } = require('../helpers');
 
-const generateJwtToken = (_id, email, expireTime) => {
-  return jwt.sign({ _id, email }, process.env.JWT_KEY, {
-    expiresIn: expireTime || "1h",
-  });
+const generateJwtToken = (_id, email) => {
+  return jwt.sign({ _id, email }, process.env.JWT_KEY);
 };
 
 //======================================SIGN UP==========================================
 
 exports.signup = (req, res) => {
-  User.findOne({ email: req.body.email }).exec(async(error, user) => {
-    if(error){
+  User.findOne({ email: req.body.email }).exec(async (error, user) => {
+    if (error) {
       return res.status(400).json({
-        status: 'Fail',
+        status: 'fail',
         message: error.message
       });
     }
     if (user) {
       return res.status(400).json({
-        status: 'Fail',
+        status: 'fail',
         message: "User already registered",
       });
     } else {
@@ -46,7 +44,7 @@ exports.signup = (req, res) => {
       _user.save((error, user) => {
         if (error) {
           return res.status(400).json({
-            status: 'Fail',
+            status: 'fail',
             message: error.message
           });
         }
@@ -61,9 +59,9 @@ exports.signup = (req, res) => {
           };
 
           sendMail(data);
-          
+
           return res.status(201).json({
-            status: 'Success',
+            status: 'success',
             message: 'User Created Please Check Your Email to Verify'
           });
         }
@@ -83,12 +81,12 @@ exports.verifyEmail = async (req, res) => {
     user.isActive = true;
     user.save();
     res.status(200).json({
-      status: 'Success',
+      status: 'success',
       message: "Your account is activated, You can login now"
     })
   } else {
     res.status(400).json({
-      status: 'Fail',
+      status: 'fail',
       message: 'User Not Found'
     });
   }
@@ -103,13 +101,13 @@ exports.reSendVerifyLink = (req, res) => {
       sendMail(user.email, token);
 
       return res.status(200).json({
-        status: 'Success',
+        status: 'success',
         message: 'Please check your email for verification link'
       });
     }
     else {
       return res.status(400).json({
-        status: 'Fail',
+        status: 'fail',
         message: 'This email is not found in our record, Please register'
       });
     }
@@ -139,13 +137,13 @@ exports.reSendVerifyLink = (req, res) => {
 //       sendMail(data);
 
 //       return res.status(200).json({
-//         status: 'Success',
+//         status: 'success',
 //         message: 'Please check your email for verification code'
 //       });
 //     }
 //     else {
 //       return res.status(400).json({
-//         status: 'Fail',
+//         status: 'fail',
 //         message: 'This email is not found in our record, Please register'
 //       });
 //     }
@@ -173,8 +171,16 @@ exports.signin = async (req, res) => {
         const token = generateJwtToken(user._id, user.email);
         const { _id, fullName, email } = user;
 
+        jwt.verify(token, process.env.JWT_KEY, function (err, decode) {
+          if (err) {
+            return res.status(400).json({ status: "Error", message: "Token Expired Login Again", Error: err })
+          } else {
+            req.user = decode;
+          }
+        })
+
         res.status(200).json({
-          status: "Success",
+          status: "success",
           message: "User Successfully Logged In",
           token,
           user: { _id, fullName, email }
@@ -182,20 +188,20 @@ exports.signin = async (req, res) => {
       }
       else {
         return res.status(400).json({
-          status: 'Fail',
+          status: 'fail',
           message: "Password Incorrect"
         });
       }
     }
     else {
       return res.status(200).json({
-        status: 'Success',
-        messege: "Please Activate Your Account"
+        status: 'success',
+        message: "Please Activate Your Account"
       });
     }
-  }else{
+  } else {
     return res.status(400).json({
-      status: 'Fail',
+      status: 'fail',
       messege: "User Not Found"
     });
   }
