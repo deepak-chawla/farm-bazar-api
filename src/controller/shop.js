@@ -1,36 +1,36 @@
-const Shop = require('../models/shop');
+const Store = require('../models/shop');
 const User = require('../models/user');
 
-exports.createShop = async (req, res) => {
-    const { shopName, description } = req.body;
-    const _shop = new Shop({
+exports.createStore = async (req, res) => {
+    const { storeName, about } = req.body;
+    const _store = new Store({
         owner: req.user._id,
-        shopName,
-        description,
+        storeName,
+        about,
     });
     const user = await User.findById(req.user._id);
     if (!user.isSeller) {
-        _shop.save((err, shop) => {
-            if (shop) {
+        _store.save((err, store) => {
+            if (store) {
                 user.isSeller = true,
-                user.shopId = shop._id
+                user.storeId = store._id
                 user.save();
                 res.status(201).json({
-                    status: "Success",
-                    message: "Your Shop Created"
+                    status: "success",
+                    message: "Your Store Created"
                 });
             }
             else
                 res.status(400).json({
-                    status: "Fail",
-                    message: err
+                    status: "fail",
+                    message: err.message
                 });
         });
     }
     else {
         res.status(400).json({
-            status: "Error",
-            message: "You already have a Shop"
+            status: "fail",
+            message: "You already have a Store."
         });
     }
 

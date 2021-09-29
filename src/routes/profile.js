@@ -1,11 +1,13 @@
 const router = require("express").Router();
 const upload = require("../utils/multer");
-const { editProfile, profile } = require("../controller/profile");
+const { updateUser, userInfo, updateUserPhoto } = require("../controller/profile");
 const {requireSignIn} = require('../common-middleware/');
 
 
-router.put("/edit-profile", requireSignIn,  upload.single("profilePicture"), editProfile);
-router.get("/profile", requireSignIn, profile);
+router.put("/update-user", requireSignIn, updateUser);
+router.get("/user-info", requireSignIn, userInfo);
+router.put("/user-image-upload", requireSignIn, upload.single("userImage"), updateUserPhoto);
+
 
 
 module.exports = router;
