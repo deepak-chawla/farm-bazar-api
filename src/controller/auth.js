@@ -202,7 +202,7 @@ exports.signin = async (req, res) => {
   } else {
     return res.status(400).json({
       status: 'fail',
-      messege: "User Not Found"
+      message: "User Not Found"
     });
   }
 };
