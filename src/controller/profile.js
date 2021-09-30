@@ -54,7 +54,7 @@ exports.userInfo = async (req, res) => {
 exports.profile = async (req, res) => {
   const user = await User.findById({ _id: req.user._id });
   if (user) {
-    res.status(200).json({ status: "success", isSeller: user.isSeller, userImgUrl: user.profilePicture });
+    res.status(200).json({isSeller: user.isSeller, fullName: user.fullName, userImgUrl: user.profilePicture });
   }
   else {
     res.status(404).json({ status: "fail", message: "User not found." });
