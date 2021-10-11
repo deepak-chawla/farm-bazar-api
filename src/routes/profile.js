@@ -17,7 +17,7 @@ function errHandler(err, req, res, next) {
 router.put("/update-user", requireSignIn, updateUser);
 router.get("/profile", requireSignIn, profile);
 router.get("/user-info", requireSignIn, userInfo);
-router.get("/user-image-upload", requireSignIn,upload.single('userImage'), errHandler,   updateUserPhoto);
+router.put("/user-image-upload", requireSignIn,upload.single('userImage'), errHandler,   updateUserPhoto);
 
 
 
