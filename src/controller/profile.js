@@ -73,7 +73,7 @@ exports.updateUserPhoto = async (req, res) => {
         }
         user.profilePicture = req.file.filename;
         user.save()
-          .then(result => res.status(200).json({ status: 'success', message: 'profile updated', imageUrl: imageUrl }))
+          .then(result => res.status(200).json({ status: 'success', message: 'profile updated', userImgUrl: imageUrl }))
           .catch(error => res.status(400).json({ status: 'fail', message: error.message }))
       }
       ).catch(error => res.status(400).json({ status: 'fail', message: error.message }));
