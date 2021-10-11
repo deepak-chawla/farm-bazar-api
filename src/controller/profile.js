@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const cloudinary = require("../utils/cloudinary");
+const fs = require("fs");
 const path = require('path');
 
 exports.updateUser = async (req, res) => {
@@ -54,7 +54,7 @@ exports.userInfo = async (req, res) => {
 exports.profile = async (req, res) => {
   const user = await User.findById({ _id: req.user._id });
   if (user) {
-    res.status(200).json({isSeller: user.isSeller, fullName: user.fullName, userImgUrl: user.profilePicture });
+    res.status(200).json({ isSeller: user.isSeller, fullName: user.fullName, userImgUrl: user.profilePicture });
   }
   else {
     res.status(404).json({ status: "fail", message: "User not found." });
@@ -64,21 +64,20 @@ exports.profile = async (req, res) => {
 
 
 exports.updateUserPhoto = async (req, res) => {
-  const user = await User.findById({ _id: req.user._id });
-  if (user) {
-    if (req.file) {
-      let result = await cloudinary.uploader.upload(req.file.path);
-      cloudinary.uploader.destroy(user.cloudinaryId);
-      user.profilePicture = result.secure_url;
-      user.cloudinaryId = result.public_id;
-      user.save((err, user) => {
-        if (err) return res.status(400).json(err);
-        else return res.status(200).json({ status: "success", message: "Profile Photo Successfully Updated." });
-      });
-    } else {
-      res.status(400).json({ status: "fail", message: "Image file required" });
-    }
+  if (req.file) {
+    User.findById(req.user._id)
+      .then(user => {
+        const imageUrl = `${req.headers.host}/uploads/${req.file.filename}`;
+        if (user.profilePicture.length) {
+          fs.unlinkSync(path.join(path.dirname(__dirname), `../public/upload/${user.profilePicture}`));
+        }
+        user.profilePicture = req.file.filename;
+        user.save()
+          .then(result => res.status(200).json({ status: 'success', message: 'profile updated', imageUrl: imageUrl }))
+          .catch(error => res.status(400).json({ status: 'fail', message: error.message }))
+      }
+      ).catch(error => res.status(400).json({ status: 'fail', message: error.message }));
   } else {
-    res.status(404).json({ status: "fail", message: "Something went wrong." });
+    res.status(400).json({ status: 'fail', message: 'image File Required' });
   }
 }
