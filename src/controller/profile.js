@@ -27,7 +27,6 @@ exports.updateUser = async (req, res) => {
 exports.userInfo = async (req, res) => {
   User.findById({ _id: req.user._id })
   .then(usr => {
-    const imageUrl = `${req.headers.host}/uploads/${usr.profilePicture}`;
     const user = {
       firstName: usr.firstName,
       lastName: usr.lastName,
@@ -36,7 +35,7 @@ exports.userInfo = async (req, res) => {
       contactNumber: usr.contactNumber,
       dateOfBirth: usr.dateOfBirth,
       gender: usr.gender,
-      userImgUrl: imageUrl,
+      userImgUrl: usr.profilePicture,
       postalCode: usr.postalCode,
       address: usr.address,
       city: usr.city,
@@ -49,8 +48,7 @@ exports.userInfo = async (req, res) => {
 exports.profile = async (req, res) => {
   User.findById({ _id: req.user._id })
   .then(user => {
-    const imageUrl = `${req.headers.host}/uploads/${user.profilePicture}`;
-    res.status(200).json({ isSeller: user.isSeller, fullName: user.fullName, userImgUrl: imageUrl });
+    res.status(200).json({ isSeller: user.isSeller, fullName: user.fullName, userImgUrl: user.profilePicture });
   })
   .catch(error => {
     res.status(404).json({ status: "fail", message: error.message });
@@ -64,11 +62,12 @@ exports.updateUserPhoto = async (req, res) => {
       .then(user => {
         const imageUrl = `${req.headers.host}/uploads/${req.file.filename}`;
         if (user.profilePicture.length) {
-          fs.unlinkSync(path.join(path.dirname(__dirname), `../public/upload/${user.profilePicture}`));
+          let profilePicture = user.profilePicture.substring(user.profilePicture.search('uploads/'), user.profilePicture.length).substring(8,user.profilePicture.length);
+          fs.unlinkSync(path.join(path.dirname(__dirname), `../public/upload/${profilePicture}`));
         }
-        user.profilePicture = req.file.filename;
+        user.profilePicture = imageUrl;
         user.save()
-          .then(result => res.status(200).json({ status: 'success', message: 'profile updated', userImgUrl: imageUrl }))
+          .then(result => res.status(200).json({ status: 'success', message: 'profile updated', userImgUrl: result.profilePicture }))
           .catch(error => res.status(400).json({ status: 'fail', message: error.message }))
       }
       ).catch(error => res.status(400).json({ status: 'fail', message: error.message }));
