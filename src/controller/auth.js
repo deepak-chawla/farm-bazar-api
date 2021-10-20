@@ -63,7 +63,7 @@ exports.signup = (req, res) => {
             }
             );
         }
-      }).catch(error => res.status(400).json({status: 'fail', message: error.message}))
+      }).catch(error => res.status(400).json({ status: 'fail', message: error.message }))
   } catch (error) {
     console.log(error.message);
   }
@@ -200,7 +200,7 @@ exports.signin = async (req, res) => {
           });
         }
       })
-      .catch(error => res.status(400).json({status: 'fail', message: error.message}));
+      .catch(error => res.status(400).json({ status: 'fail', message: error.message }));
   } catch (error) {
     console.log(error.message)
   }

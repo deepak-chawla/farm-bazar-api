@@ -27,13 +27,9 @@ function arrangeCategories(categories, parentId = null) {
 exports.createCategory = (req, res) => {
   const categoryObj = {
     name: req.body.name,
-    slug: `${slugify(req.body.name)}-${shortid.generate()}`,
+    slug: `${slugify(req.body.name)}-${Date.now()}`,
     createdBy: req.user._id,
   };
-
-  if (req.file) {
-    categoryObj.categoryImage = "/public/" + req.file.filename;
-  }
 
   if (req.body.parentId) {
     categoryObj.parentId = req.body.parentId;

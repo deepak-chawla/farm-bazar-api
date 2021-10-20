@@ -9,7 +9,7 @@ const categoryRouter = require('./routes/category');
 const productRouter = require('./routes/product');
 const cartRouter = require('./routes/cart');
 const profileRouter = require('./routes/profile');
-
+const adminRouter = require('./routes/admin');
 
 mongoose.connect(
     `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.jxqdz.mongodb.net/${process.env.MONGO_DB_DATABASE}?retryWrites=true&w=majority`,
@@ -29,6 +29,8 @@ app.use(cors());
 app.use('/uploads',express.static('public/upload'));
 
 
+
+app.use('/admin',adminRouter);
 app.use('/api', authUser);
 app.use('/api', categoryRouter);
 app.use('/api', productRouter);

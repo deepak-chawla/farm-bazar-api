@@ -8,41 +8,36 @@ exports.addProduct = async (req, res) => {
 
   if (req.files.length > 0) {
     productPictures = req.files.map((file) => {
-      return { img: file.path };
+      return { img: file.filename };
     });
   }
 
-  const user = await User.findById({ _id: req.user._id });
+  try {
+    const user = await User.findById({ _id: req.user._id });
+    const product = new Product({
+      name: name,
+      slug: slugify(name),
+      price,
+      quantity,
+      unit,
+      description,
+      productPictures,
+      category,
+      createdBy: req.user._id,
+      storeId: user.storeId,
+    });
 
-  const product = new Product({
-    name: name,
-    slug: slugify(name),
-    price,
-    quantity,
-    unit,
-    description,
-    productPictures,
-    category,
-    createdBy: req.user._id,
-    shopId: user.shopId
-  });
-
-  product.save((error, product) => {
-    if (error) {
-      return res.status(400).json({
-        status: 'Fail',
-        error
-      });
-    }
-    if (product) {
-      return res.status(201).json({
-        product,
-        files: req.files
-      });
-    }
-    
-  });
-};
+    product.save()
+      .then(product => {
+        res.status(201).json({
+          product
+        });
+      }
+      ).catch(error => res.status(400).json({ status: 'fail', message: error.message }));
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message });
+  }
+}
 
 exports.getProductsBySlug = (req, res) => {
   const { slug } = req.params;

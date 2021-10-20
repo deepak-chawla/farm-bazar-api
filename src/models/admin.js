@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const userSchema = mongoose.Schema({
+const adminSchema = mongoose.Schema({
     firstName: {
         type: String,
         required: true,
@@ -21,32 +21,9 @@ const userSchema = mongoose.Schema({
         enum: ["male", "female"],
         lowercase: true
     },
-    dateOfBirth: {
-        type: String,
-    },
     profilePicture: {
         type: String,
         default: ""
-    },
-    province: {
-        type: String,
-        trim: true,
-    },
-    city: {
-        type: String,
-        trim: true,
-    },
-    address: {
-        type: String,
-    },
-    postalCode: {
-        type: Number,
-        trim: true,
-    },
-    contactNumber: {
-        type: String,
-        required: true,
-        trim: true,
     },
     email: {
         type: String,
@@ -58,30 +35,19 @@ const userSchema = mongoose.Schema({
     hash_password: {
         type: String,
         required: true
-    },
-    storeId: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'Store'
-    },
-    isActive: {
-        type: Boolean,
-        default: false
-    },
-    isSeller: {
-        type: Boolean,
-        default: false
-    },
+    }
 },
     { timestamps: true }
 );
 
-userSchema.virtual("fullName").get(function () {
+adminSchema.virtual("fullName").get(function () {
     return `${this.firstName} ${this.lastName}`;
 });
 
-userSchema.methods = {
+adminSchema.methods = {
     authenticate: function (password) {
         return bcrypt.compareSync(password, this.hash_password);
     },
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Admin', adminSchema);
