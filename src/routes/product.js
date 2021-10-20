@@ -6,10 +6,10 @@ const upload = require('../utils/multer');
 const path = require('path');
 
 router.post('/product/add', requireSignIn, upload.array('productPicture'), addProduct);
-router.post("/product/getSellerProducts",requireSignIn, getSellerProducts);
+router.get("/product/getSellerProducts",requireSignIn, getSellerProducts);
 router.delete("/product/deleteProductById", requireSignIn, deleteProductById);
 router.get("/products/:slug", getProductsBySlug);
 router.get("/product/:productId", getProductDetailsById);
-router.post("/product/getProducts", getProducts);
+router.get("/product/getProducts", getProducts);
 
 module.exports = router;
