@@ -1,22 +1,31 @@
 const slugify = require('slugify');
 const Product = require("../models/product");
 const User = require('../models/user');
+const cloudinary = require('../utils/cloudinary');
 
 exports.addProduct = async (req, res) => {
   const { name, price, description, category, unit, quantity } = req.body;
   let productPictures = [];
 
   if (req.files.length > 0) {
-    productPictures = req.files.map((file) => {
-      return { img: file.filename };
-    });
+  const files = req.files;
+  for (const file of files){
+    await cloudinary.uploader.upload(file.path, { folder: "products/" },)
+    .then(result => {
+      productPictures.push({
+        img: result.secure_url,
+        cloudinary_id: result.public_id
+      })
+    })
+    .catch(err => res.status(400).json(err.message))
+  }
   }
 
   try {
     const user = await User.findById({ _id: req.user._id });
     const product = new Product({
-      name: name,
-      slug: slugify(name),
+      name,
+      slug: `${name} - ${Date.now()}`,
       price,
       quantity,
       unit,
@@ -89,11 +98,9 @@ exports.deleteProductById = (req, res) => {
 };
 
 exports.getProducts = async (req, res) => {
-  const products = await Product.find({})
-    .select("_id name price quantity slug description productPictures category")
-    .populate({ path: "category", select: "_id name" })
-    .exec();
-  res.status(200).json({ products });
+  Product.find()
+  .then(products => res.status(200).json({products: products}))
+  .catch(err => res.status(400).json({status: 'fail', message: err.message}));
 };
 
 exports.getSellerProducts = async (req, res) => {
@@ -104,3 +111,11 @@ exports.getSellerProducts = async (req, res) => {
 
   res.status(200).json({ products });
 };
+
+
+exports.searchProduct = async (req, res) => {
+  const regex = RegExp(req.params.search, 'i');
+  Product.find({ title: regex }).then((result) => {
+    res.status(200).json(result);
+  })
+}

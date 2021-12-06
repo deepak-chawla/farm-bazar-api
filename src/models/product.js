@@ -1,32 +1,33 @@
 const mongoose = require('mongoose');
+const { cloudinary_js_config } = require('../utils/cloudinary');
 
 const productSchema = new mongoose.Schema({
-    name: { 
-        type: String, 
-        required: true, 
-        trim: true 
-    },
-    slug: { 
-        type: String, 
-        required: true, 
-        unique: true 
-    },
-    isActive: { 
-        type: Boolean, 
+    name: {
+        type: String,
         required: true,
-        default: true 
+        trim: true
     },
-    price: { 
-        type: Number, 
-        required: true 
+    slug: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    isActive: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
+    price: {
+        type: Number,
+        required: true
     },
     quantity: {
         type: Number,
         required: true
     },
-    unit:{
+    unit: {
         type: String,
-        enum: ["kg","litre","piece","dozen"],
+        enum: ["kg", "litre", "piece", "dozen"],
         default: "kg"
     },
     description: {
@@ -36,11 +37,14 @@ const productSchema = new mongoose.Schema({
     },
     offer: { type: Number },
     productPictures: [
-        { img: { type: String } }
+        {
+            img: { type: String },
+            cloudinary_id: { type: String }
+        },
     ],
     reviews: [
         {
-            userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
             review: String
         }
     ],
