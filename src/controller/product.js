@@ -8,8 +8,7 @@ exports.addProduct = async (req, res) => {
   let productPictures = [];
 
   if (req.files.length > 0) {
-  const files = req.files;
-  for (const file of files){
+  for (const file of req.files){
     await cloudinary.uploader.upload(file.path, { folder: "products/" },)
     .then(result => {
       productPictures.push({
