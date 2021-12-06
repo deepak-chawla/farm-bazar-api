@@ -12,6 +12,6 @@ router.delete("/product/deleteProductById", requireSignIn, deleteProductById);
 router.get("/product/getProducts", getProducts);
 router.get("/products/:slug", getProductsBySlug);
 router.get("/product/:productId", getProductDetailsById);
-router.get("/product/:search", searchProduct);
+router.get("/product/", searchProduct);
 
 module.exports = router;

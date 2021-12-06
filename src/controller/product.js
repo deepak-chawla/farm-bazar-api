@@ -113,8 +113,13 @@ exports.getSellerProducts = async (req, res) => {
 
 
 exports.searchProduct = async (req, res) => {
-  const regex = RegExp(req.params.search, 'i');
-  Product.find({ title: regex }).then((result) => {
-    res.status(200).json(result);
-  })
+  const regex = RegExp(req.query.search, 'i');
+  Product.find({ name: regex }).then((result) => { 
+    if(result.length > 0){
+    res.status(200).json(result);}
+    else{
+      res.status(200).json("Product not available.");
+    }
+  }
+  ).catch(err => res.status(400).json({status: 'fail', message: err.message}))
 }
