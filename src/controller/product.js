@@ -1,4 +1,5 @@
 const slugify = require('slugify');
+const product = require('../models/product');
 const Product = require("../models/product");
 const User = require('../models/user');
 const cloudinary = require('../utils/cloudinary');
@@ -8,16 +9,16 @@ exports.addProduct = async (req, res) => {
   let productPictures = [];
 
   if (req.files.length > 0) {
-  for (const file of req.files){
-    await cloudinary.uploader.upload(file.path, { folder: "products/" },)
-    .then(result => {
-      productPictures.push({
-        img: result.secure_url,
-        cloudinary_id: result.public_id
-      })
-    })
-    .catch(err => res.status(400).json(err.message))
-  }
+    for (const file of req.files) {
+      await cloudinary.uploader.upload(file.path, { folder: "products/" },)
+        .then(result => {
+          productPictures.push({
+            img: result.secure_url,
+            cloudinary_id: result.public_id
+          })
+        })
+        .catch(err => res.status(400).json(err.message))
+    }
   }
 
   try {
@@ -97,9 +98,20 @@ exports.deleteProductById = (req, res) => {
 };
 
 exports.getProducts = async (req, res) => {
+  let { page, size } = req.query;
+  if (!page) {
+    page = 1;
+  }
+  if (!size) {
+    size = 10;
+  }
+  const limit = parseInt(size);
+  const skip = (page - 1) * size;
+
   Product.find()
-  .then(products => res.status(200).json({products: products}))
-  .catch(err => res.status(400).json({status: 'fail', message: err.message}));
+    .limit(limit).skip(skip)
+    .then(products => res.status(200).json({ products: products }))
+    .catch(err => res.status(400).json({ status: 'fail', message: err.message }));
 };
 
 exports.getSellerProducts = async (req, res) => {
@@ -111,15 +123,63 @@ exports.getSellerProducts = async (req, res) => {
   res.status(200).json({ products });
 };
 
+exports.getProductByStoreId = async (req, res) => {
+
+  let { page, size, storeId } = req.query;
+  if (!page) { page = 1; }
+  if (!size) { size = 10; }
+  const limit = parseInt(size);
+  const skip = (page - 1) * size;
+
+  await Product.find({ storeId: storeId })
+    .limit(limit).skip(skip)
+    .then(products => {
+      res.status(200).json({ products: products });
+    })
+    .catch(err => res.status(400).json({ status: 'fail', message: err.message }));
+
+}
+
+exports.getProductByStatus = async (req, res) => {
+  let { page, size, isActive } = req.query;
+  if (!page) { page = 1; }
+  if (!size) { size = 10; }
+  const limit = parseInt(size);
+  const skip = (page - 1) * size;
+
+  await Product.find({ isActive: isActive })
+    .limit(limit).skip(skip)
+    .then(products => {
+      if (products.length > 0) {
+        res.status(200).json({ products: products });
+      }
+      else {
+        res.status(200).json({ message: "Product not available." });
+      }
+    }).catch(err => res.status(200).json({ status: 'fail', message: err.message }));
+}
+
 
 exports.searchProduct = async (req, res) => {
-  const regex = RegExp(req.query.search, 'i');
-  Product.find({ name: regex }).then((result) => { 
-    if(result.length > 0){
-    res.status(200).json(result);}
-    else{
-      res.status(200).json("Product not available.");
-    }
-  }
-  ).catch(err => res.status(400).json({status: 'fail', message: err.message}))
+
+  let { page, size, search, category } = req.query;
+  if (!page) { page = 1; }
+  if (!size) { size = 10; }
+  const limit = parseInt(size);
+  const skip = (page - 1) * size;
+
+  const regex = RegExp(search, 'i');
+
+  let products = await Product
+    .find({
+      $and: [
+        { category: category || true },
+        { name: regex }
+      ]
+    })
+    .populate('category', 'name')
+    .populate("createdBy", "city firstName -_id")
+    .limit(limit).skip(skip);
+
+  res.status(200).json(products.length > 0 ? { products: products } : "Not Available")
 }
