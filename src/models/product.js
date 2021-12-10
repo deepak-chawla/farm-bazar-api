@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { cloudinary_js_config } = require('../utils/cloudinary');
 
 const productSchema = new mongoose.Schema({
     productName: {

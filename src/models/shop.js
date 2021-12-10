@@ -9,7 +9,7 @@ const storeSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    about:{
+    aboutStore:{
         type: String
     }
 },

@@ -73,7 +73,11 @@ exports.getProductsBySlug = (req, res) => {
 exports.getProductDetailsById = (req, res) => {
   const { productId } = req.params;
   if (productId) {
-    Product.findOne({ _id: productId }).exec((error, product) => {
+    Product.findOne({ _id: productId })
+    .select('productName price quantity unit description category productPictures')
+    .populate('category', 'name')
+    .populate('storeId', 'storeName')
+    .exec((error, product) => {
       if (error) return res.status(400).json({ error });
       if (product) {
         res.status(200).json({ product });
@@ -167,6 +171,8 @@ exports.searchProduct = async (req, res) => {
   if (!size) { size = 10; }
   const limit = parseInt(size);
   const skip = (page - 1) * size;
+
+  if(search){
   const regex = RegExp(search, 'i');
   await Product
     .find({
@@ -205,5 +211,8 @@ exports.searchProduct = async (req, res) => {
         .json(products.length > 0 ? { products: response } : "Not Available")
     })
     .catch(err => res.status(200).json({ status: 'fail', message: err.message }));
+  }else{
+    res.status(200).json({ status: 'fail', message: "Search query required" })
+  }
 
 }

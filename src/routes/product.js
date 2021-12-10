@@ -14,7 +14,7 @@ router.get("/product/getProductByStatus/", getProductByStatus);
 router.get("/product/getProductByStoreId/", getProductByStoreId);
 router.get("/product/getProducts", getProducts);
 router.get("/products/:slug", getProductsBySlug);
-router.get("/product/:productId", getProductDetailsById);
+router.get("/product/get/:productId", getProductDetailsById);
 router.get("/product/", searchProduct);
 
 module.exports = router;
