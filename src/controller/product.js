@@ -171,20 +171,34 @@ exports.searchProduct = async (req, res) => {
   await Product
     .find({
       $and: [
-        category? 
-        { category: category}: {},
-        location? 
-        {location: location }: {},
+        category ?
+          { category: category } : {},
+        location ?
+          { location: location } : {},
         { productName: regex }
       ]
     })
-    .populate('category', 'name')
-    .populate("createdBy", "city firstName -_id")
+    .select('_id productName category unit price quantity location productPictures.img')
+    .populate('category', 'name -_id')
     .limit(limit).skip(skip)
     .then(products => {
+
+      let response = products.map(product => {
+        return {
+          _id: product._id,
+          productName: product.productName,
+          productPicture: product.productPictures[0].img,
+          price: product.price,
+          quantity: product.quantity,
+          unit: product.unit,
+          category: product.category.name,
+          location: product.location
+        }
+      })
+
       res.status(200)
-        .json(products.length > 0 ? { products: products } : "Not Available")
+        .json(products.length > 0 ? { products: response } : "Not Available")
     })
     .catch(err => res.status(200).json({ status: 'fail', message: err.message }));
-  
+
 }
