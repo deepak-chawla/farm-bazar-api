@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { cloudinary_js_config } = require('../utils/cloudinary');
 
 const productSchema = new mongoose.Schema({
-    name: {
+    productName: {
         type: String,
         required: true,
         trim: true
@@ -35,7 +35,11 @@ const productSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    offer: { type: Number },
+    location: {
+        type: String,
+        required: true,
+        trim: true
+    },
     productPictures: [
         {
             img: { type: String },

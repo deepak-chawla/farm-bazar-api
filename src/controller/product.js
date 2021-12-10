@@ -5,7 +5,7 @@ const User = require('../models/user');
 const cloudinary = require('../utils/cloudinary');
 
 exports.addProduct = async (req, res) => {
-  const { name, price, description, category, unit, quantity } = req.body;
+  const { productName, price, description, category, unit, quantity, location } = req.body;
   let productPictures = [];
 
   if (req.files.length > 0) {
@@ -24,14 +24,15 @@ exports.addProduct = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.user._id });
     const product = new Product({
-      name,
-      slug: `${name} - ${Date.now()}`,
+      productName,
+      slug: `${productName} - ${Date.now()}`,
       price,
       quantity,
       unit,
       description,
       productPictures,
       category,
+      location,
       createdBy: req.user._id,
       storeId: user.storeId,
     });
@@ -39,7 +40,7 @@ exports.addProduct = async (req, res) => {
     product.save()
       .then(product => {
         res.status(201).json({
-          product
+          status: 'success', message: `${product.productName} Product Added Successfully`
         });
       }
       ).catch(error => res.status(400).json({ status: 'fail', message: error.message }));
@@ -161,25 +162,29 @@ exports.getProductByStatus = async (req, res) => {
 
 
 exports.searchProduct = async (req, res) => {
-
-  let { page, size, search, category } = req.query;
+  let { page, size, search, category, location } = req.query;
   if (!page) { page = 1; }
   if (!size) { size = 10; }
   const limit = parseInt(size);
   const skip = (page - 1) * size;
-
   const regex = RegExp(search, 'i');
-
-  let products = await Product
+  await Product
     .find({
       $and: [
-        { category: category || true },
-        { name: regex }
+        category? 
+        { category: category}: {},
+        location? 
+        {location: location }: {},
+        { productName: regex }
       ]
     })
     .populate('category', 'name')
     .populate("createdBy", "city firstName -_id")
-    .limit(limit).skip(skip);
-
-  res.status(200).json(products.length > 0 ? { products: products } : "Not Available")
+    .limit(limit).skip(skip)
+    .then(products => {
+      res.status(200)
+        .json(products.length > 0 ? { products: products } : "Not Available")
+    })
+    .catch(err => res.status(200).json({ status: 'fail', message: err.message }));
+  
 }
