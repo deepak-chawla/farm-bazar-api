@@ -178,16 +178,21 @@ exports.searchProduct = async (req, res) => {
         { productName: regex }
       ]
     })
-    .select('_id productName category unit price quantity location productPictures.img')
+    .select('_id productName category unit price quantity location productPictures')
     .populate('category', 'name -_id')
     .limit(limit).skip(skip)
     .then(products => {
 
       let response = products.map(product => {
+        let productPicture;
+        if(product.productPictures.length > 0){
+          productPicture = product.productPictures[0].img;
+        }
+        else{productPicture = ''}
         return {
           _id: product._id,
           productName: product.productName,
-          productPicture: product.productPictures[0].img,
+          productPicture: productPicture,
           price: product.price,
           quantity: product.quantity,
           unit: product.unit,
