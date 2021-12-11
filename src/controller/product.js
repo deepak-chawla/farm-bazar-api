@@ -74,7 +74,7 @@ exports.getProductDetailsById = (req, res) => {
   const { productId } = req.params;
   if (productId) {
     Product.findOne({ _id: productId })
-    .select('productName price quantity unit description category productPictures')
+    .select('productName price quantity unit description category location productPictures')
     .populate('category', 'name')
     .populate('storeId', 'storeName')
     .exec((error, product) => {

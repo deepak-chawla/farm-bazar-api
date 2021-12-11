@@ -10,6 +10,7 @@ const productRouter = require('./routes/product');
 const cartRouter = require('./routes/cart');
 const profileRouter = require('./routes/profile');
 const adminRouter = require('./routes/admin');
+const orderRouter = require('./routes/order');
 
 mongoose.connect(
     `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.jxqdz.mongodb.net/${process.env.MONGO_DB_DATABASE}?retryWrites=true&w=majority`,
@@ -37,6 +38,7 @@ app.use('/api', productRouter);
 app.use('/api', cartRouter);
 app.use('/api', shopRouter);
 app.use('/api', profileRouter);
+app.use('/api',orderRouter);
 
 
 app.listen(process.env.PORT, ()=>{
