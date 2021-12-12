@@ -80,7 +80,17 @@ exports.getProductDetailsById = (req, res) => {
     .exec((error, product) => {
       if (error) return res.status(400).json({ error });
       if (product) {
-        res.status(200).json({ product });
+        res.status(200).json({ 
+          productId: product._id,
+          productName: product.productName,
+          productPrice: product.price,
+          productQuantity: product.quantity,
+          productUnit: product.unit,
+          productDescription: product.description,
+          productLocation: product.location,
+          productCategory: product.category,
+          productPictures: product.productPictures
+         });
       }
     });
   } else {
@@ -121,7 +131,7 @@ exports.getProducts = async (req, res) => {
 
 exports.getSellerProducts = async (req, res) => {
   const products = await Product.find({ createdBy: req.user._id })
-    .select("_id name price quantity slug description productPictures category")
+    .select("_id name price quantity description productPictures category")
     .populate({ path: "category", select: "_id name" })
     .exec();
 
