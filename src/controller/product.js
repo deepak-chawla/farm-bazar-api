@@ -206,17 +206,17 @@ exports.getProductByStatus = async (req, res) => {
 }
 
 exports.searchProduct = async (req, res) => {
-  let { page, size, query, category, location } = req.query
-  if (!page) {
-    page = 1
-  }
-  if (!size) {
-    size = 10
-  }
-  const limit = parseInt(size)
-  const skip = (page - 1) * size
+  try {
+    let { page, size, query, category, location } = req.query
+    if (!page) {
+      page = 1
+    }
+    if (!size) {
+      size = 10
+    }
+    const limit = parseInt(size)
+    const skip = (page - 1) * size
 
-  if (query) {
     const regex = RegExp(query, 'i')
     await Product.find({
       $and: [
@@ -258,7 +258,7 @@ exports.searchProduct = async (req, res) => {
       .catch((err) =>
         res.status(200).json({ status: 'fail', message: err.message })
       )
-  } else {
-    res.status(200).json({ status: 'fail', message: 'Search query required' })
+  } catch (error) {
+    res.status(200).json({ status: 'fail', message: error.message })
   }
 }

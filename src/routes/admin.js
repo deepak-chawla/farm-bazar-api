@@ -1,10 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const { requireSignIn } = require('../common-middleware');
-const { adminSignUp, adminSignIn } = require('../controller/admin');
+const express = require('express')
+const router = express.Router()
+const { requireSignIn } = require('../common-middleware')
+const { adminSignUp, adminSignIn } = require('../controller/admin')
+const { addSlide } = require('../controller/homeSlider')
+const upload = require('../utils/multer')
 
+router.post('/adminSignUp', adminSignUp)
+router.post('/adminSignIn', adminSignIn)
+router.post('/slide/add', upload.single('slide'), addSlide)
 
-router.post('/adminSignUp',  adminSignUp);
-router.post('/adminSignIn',  adminSignIn);
-
-module.exports = router;
+module.exports = router
