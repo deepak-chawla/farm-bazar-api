@@ -256,7 +256,9 @@ exports.searchProduct = async (req, res) => {
           }
         })
 
-        res.status(200).json(products.length > 0 ? response : 'Not Available')
+        res
+          .status(200)
+          .json(products.length > 0 ? { products: response } : 'Not Available')
       })
       .catch((err) =>
         res.status(200).json({ status: 'fail', message: err.message })
