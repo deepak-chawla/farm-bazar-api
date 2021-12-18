@@ -106,6 +106,7 @@ exports.getProductDetailsById = (req, res) => {
             productDeliveryCharges: 200,
             productRating: 3.5,
             productPictures: product.productPictures,
+            store: product.storeId,
           })
         }
       })
@@ -168,11 +169,14 @@ exports.getProductByStoreId = async (req, res) => {
   const limit = parseInt(size)
   const skip = (page - 1) * size
 
-  await Product.find({ storeId: storeId })
+  await Product.find({ $and: [{ storeId: storeId }, { isActive: true }] })
+    .select(
+      'isActive _id productName price quantity unit description productPictures category location  storeId'
+    )
     .limit(limit)
     .skip(skip)
     .then((products) => {
-      res.status(200).json({ products: products })
+      res.status(200).json(products)
     })
     .catch((err) =>
       res.status(400).json({ status: 'fail', message: err.message })
@@ -223,6 +227,7 @@ exports.searchProduct = async (req, res) => {
         category ? { category: category } : {},
         location ? { location: location } : {},
         { productName: regex },
+        { isActive: true },
       ],
     })
       .select(
@@ -240,20 +245,18 @@ exports.searchProduct = async (req, res) => {
             productPicture = ''
           }
           return {
-            _id: product._id,
+            productId: product._id,
             productName: product.productName,
             productPicture: productPicture,
-            price: product.price,
-            quantity: product.quantity,
-            unit: product.unit,
-            category: product.category.name,
-            location: product.location,
+            productPrice: product.price,
+            productQuantity: product.quantity,
+            productUnit: product.unit,
+            productCategory: product.category.name,
+            productLocation: product.location,
           }
         })
 
-        res
-          .status(200)
-          .json(products.length > 0 ? { products: response } : 'Not Available')
+        res.status(200).json(products.length > 0 ? response : 'Not Available')
       })
       .catch((err) =>
         res.status(200).json({ status: 'fail', message: err.message })
