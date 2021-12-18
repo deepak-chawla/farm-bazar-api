@@ -90,7 +90,7 @@ exports.getProductDetailsById = (req, res) => {
         'productName price quantity unit description category location productPictures'
       )
       .populate('category', 'name')
-      .populate('storeId', 'storeName')
+      .populate('storeId', 'storeName storeImage')
       .exec((error, product) => {
         if (error) return res.status(400).json({ error })
         if (product) {

@@ -1,10 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const { requireSignIn } = require('../common-middleware');
-const { createStore } = require('../controller/shop');
+const express = require('express')
+const router = express.Router()
+const { requireSignIn } = require('../common-middleware')
+const { createStore, getStoreById } = require('../controller/shop')
 
+router.post('/create-store', requireSignIn, createStore)
+router.get('/store/get/:storeId', getStoreById)
 
-router.post('/create-store', requireSignIn, createStore);
-
-
-module.exports = router;
+module.exports = router
