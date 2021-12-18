@@ -176,7 +176,7 @@ exports.getProductByStoreId = async (req, res) => {
     .limit(limit)
     .skip(skip)
     .then((products) => {
-      res.status(200).json(products)
+      res.status(200).json({ products: products })
     })
     .catch((err) =>
       res.status(400).json({ status: 'fail', message: err.message })
