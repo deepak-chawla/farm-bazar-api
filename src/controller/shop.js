@@ -36,7 +36,10 @@ exports.getStoreById = async (req, res) => {
   try {
     const { storeId } = req.params
     if (storeId) {
-      const store = await Store.findById({ _id: storeId })
+      const store = await Store.findById({ _id: storeId }).populate(
+        'owner',
+        'firstName lastName profilePicture'
+      )
       res.status(200).json(store)
     } else {
       res.status(400).json({ status: 'fail', message: 'StoreId Required' })
