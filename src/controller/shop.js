@@ -36,10 +36,26 @@ exports.getStoreById = async (req, res) => {
   try {
     const { storeId } = req.params
     if (storeId) {
-      const store = await Store.find({ _id: storeId })
-      res.status(200).json(store[0])
+      const store = await Store.findById({ _id: storeId })
+      res.status(200).json(store)
     } else {
       res.status(400).json({ status: 'fail', message: 'StoreId Required' })
+    }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.getOwnerById = async (req, res) => {
+  try {
+    const { ownerId } = req.params
+    if (ownerId) {
+      const user = await User.findById({ _id: ownerId }).select(
+        'firstName lastName profilePicture city address email contactNumber gender datOfBirth'
+      )
+      res.status(200).json(user)
+    } else {
+      res.status(400).json({ status: 'fail', message: 'ownerId Required' })
     }
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
