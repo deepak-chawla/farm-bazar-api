@@ -1,3 +1,4 @@
+const { addStr } = require('../helpers')
 const Store = require('../models/shop')
 const User = require('../models/user')
 
@@ -40,7 +41,20 @@ exports.getStoreById = async (req, res) => {
         'owner',
         'firstName lastName profilePicture'
       )
-      res.status(200).json(store)
+      res.status(200).json({
+        ...store._doc,
+        owner: {
+          _id: store.owner._id,
+          firstName: store.owner.firstName,
+          lastName: store.owner.lastName,
+          profilePicture: addStr(
+            store.owner.profilePicture,
+            49,
+            'w_100,h_100,c_fill'
+          ),
+        },
+        storeImage: addStr(store.storeImage, 49, 'w_100,h_100,c_fill'),
+      })
     } else {
       res.status(400).json({ status: 'fail', message: 'StoreId Required' })
     }
@@ -56,7 +70,10 @@ exports.getOwnerById = async (req, res) => {
       const user = await User.findById({ _id: ownerId }).select(
         'firstName lastName profilePicture city address email contactNumber gender datOfBirth'
       )
-      res.status(200).json(user)
+      res.status(200).json({
+        ...user._doc,
+        profilePicture: addStr(user.profilePicture, 49, 'w_100,h_100,c_fill'),
+      })
     } else {
       res.status(400).json({ status: 'fail', message: 'ownerId Required' })
     }

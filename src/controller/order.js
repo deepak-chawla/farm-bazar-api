@@ -1,6 +1,7 @@
 const Order = require('../models/order')
 const Product = require('../models/product')
 const User = require('../models/user')
+const { addStr } = require('../helpers/index')
 
 exports.addOrder = async (req, res) => {
   const {
@@ -136,5 +137,46 @@ exports.changeOrderStatusById = async (req, res) => {
     res
       .status(400)
       .json({ status: 'fail', message: 'orderId and status required' })
+  }
+}
+
+exports.getOrderById = async (req, res) => {
+  try {
+    const { orderId } = req.params
+    const order = await Order.findById({ _id: orderId })
+      .populate('storeId', 'storeImage storeName about')
+      .populate(
+        'productId',
+        'productPictures productName price quantity unit description'
+      )
+    let response = {
+      _id: order._id,
+      isActive: order.isActive,
+      orderNumber: order.orderNumber,
+      orderStatus: order.orderStatus,
+      productName: order.productId.productName,
+      productImage: addStr(
+        order.productId.productPictures[0].img,
+        49,
+        'w_80,h_80,c_fill'
+      ),
+      name: order.name,
+      city: order.city,
+      contactNumber: order.contactNumber,
+      orderAddress: order.orderAddress,
+      orderQuantity: order.orderQuantity,
+      unit: order.productId.unit,
+      subTotal: order.subTotal,
+      totalPrice: order.totalPrice,
+      storeName: order.storeId.storeName,
+      storeDescription: order.storeId.aboutStore,
+      storeImage: addStr(order.storeId.storeImage, 49, 'w_80,h_80,c_fill'),
+      productId: order.productId._id,
+      buyerId: order.buyerId,
+      storeId: order.storeId._id,
+    }
+    res.status(200).json(response)
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
   }
 }

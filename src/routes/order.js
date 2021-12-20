@@ -5,6 +5,7 @@ const {
   getStoreOrders,
   changeOrderStatusById,
   getBuyerOrders,
+  getOrderById,
 } = require('../controller/order')
 
 router.post('/order/add/:productId', requireSignIn, addOrder)
@@ -15,5 +16,6 @@ router.post(
   changeOrderStatusById
 )
 router.get('/buyer/order/getBuyerOrders', requireSignIn, getBuyerOrders)
+router.get('/order/get/:orderId', getOrderById)
 
 module.exports = router

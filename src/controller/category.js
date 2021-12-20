@@ -3,13 +3,7 @@ const Category = require('../models/category')
 const shortid = require('shortid')
 const Product = require('../models/product')
 const homeSlider = require('../models/homeSlider')
-
-function addStr(str, index, stringToAdd) {
-  let str1 = str.substring(0, index - 1)
-  let endStr = str.substring(index, str.length)
-  let str2 = endStr.substring(endStr.indexOf('/'), endStr.length)
-  return str1 + stringToAdd + str2
-}
+const { addStr } = require('../helpers/index')
 
 function arrangeCategories(categories, parentId = null) {
   const categoryList = []
