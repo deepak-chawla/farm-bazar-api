@@ -7,6 +7,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     name: {
       type: String,
     },
@@ -37,7 +41,7 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['pending', 'inProcess', 'delivered'],
+      enum: ['pending', 'inProcess', 'delivered', 'completed'],
       default: 'pending',
     },
     paymentOption: {

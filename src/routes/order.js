@@ -2,26 +2,18 @@ const router = require('express').Router()
 const { requireSignIn } = require('../common-middleware')
 const {
   addOrder,
-  getStoreOrdersByStatus,
+  getStoreOrders,
   changeOrderStatusById,
-  getBuyerOrdersByStatus,
+  getBuyerOrders,
 } = require('../controller/order')
 
 router.post('/order/add/:productId', requireSignIn, addOrder)
-router.get(
-  '/store/order/getStoreOrdersByStatus',
-  requireSignIn,
-  getStoreOrdersByStatus
-)
+router.get('/store/order/getStoreOrders', requireSignIn, getStoreOrders)
 router.post(
   '/store/order/changeOrderStatusById',
   requireSignIn,
   changeOrderStatusById
 )
-router.get(
-  '/buyer/order/getBuyerOrdersByStatus',
-  requireSignIn,
-  getBuyerOrdersByStatus
-)
+router.get('/buyer/order/getBuyerOrders', requireSignIn, getBuyerOrders)
 
 module.exports = router

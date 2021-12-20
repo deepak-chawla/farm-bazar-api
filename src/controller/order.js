@@ -37,11 +37,11 @@ exports.addOrder = async (req, res) => {
   }
 }
 
-exports.getStoreOrdersByStatus = async (req, res) => {
+exports.getStoreOrders = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.user._id })
     const storeId = user.storeId
-    let { page, size, status } = req.query
+    let { page, size, isActive } = req.query
     if (!page) {
       page = 1
     }
@@ -52,7 +52,7 @@ exports.getStoreOrdersByStatus = async (req, res) => {
     const skip = (page - 1) * size
 
     await Order.find({
-      $and: [{ storeId: storeId }, status ? { orderStatus: status } : {}],
+      $and: [{ storeId: storeId }, isActive ? { isActive: isActive } : {}],
     })
       .limit(limit)
       .skip(skip)
@@ -69,9 +69,9 @@ exports.getStoreOrdersByStatus = async (req, res) => {
   }
 }
 
-exports.getBuyerOrdersByStatus = async (req, res) => {
+exports.getBuyerOrders = async (req, res) => {
   try {
-    let { page, size, status } = req.query
+    let { page, size, isActive } = req.query
     if (!page) {
       page = 1
     }
@@ -82,7 +82,7 @@ exports.getBuyerOrdersByStatus = async (req, res) => {
     const skip = (page - 1) * size
 
     await Order.find({
-      $and: [{ buyerId: req.user._id }, status ? { orderStatus: status } : {}],
+      $and: [{ buyerId: req.user._id }, isActive ? { isActive: isActive } : {}],
     })
       .limit(limit)
       .skip(skip)
@@ -104,6 +104,9 @@ exports.changeOrderStatusById = async (req, res) => {
   if (orderId && status) {
     try {
       const order = await Order.findById({ _id: orderId })
+      if (status === 'completed') {
+        order.isActive = false
+      }
       order.orderStatus = status
       order.save((err) => {
         if (err) {
