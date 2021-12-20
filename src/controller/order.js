@@ -3,7 +3,15 @@ const Product = require('../models/product')
 const User = require('../models/user')
 
 exports.addOrder = async (req, res) => {
-  const { name, city, postalCode, paymentOption, quantity, address } = req.body
+  const {
+    name,
+    city,
+    contactNumber,
+    postalCode,
+    paymentOption,
+    quantity,
+    address,
+  } = req.body
   const { productId } = req.params
   try {
     const product = await Product.findById(productId)
@@ -12,9 +20,11 @@ exports.addOrder = async (req, res) => {
       name: name,
       city: city,
       postalCode: postalCode,
+      contactNumber: contactNumber,
       orderQuantity: quantity,
       orderAddress: address,
       paymentOption: paymentOption,
+      subTotal: product.price * quantity,
       totalPrice: product.price * quantity + 200,
       buyerId: req.user._id,
       storeId: product.storeId,
@@ -106,6 +116,8 @@ exports.changeOrderStatusById = async (req, res) => {
       const order = await Order.findById({ _id: orderId })
       if (status === 'completed') {
         order.isActive = false
+      } else {
+        order.isActive = true
       }
       order.orderStatus = status
       order.save((err) => {
