@@ -62,19 +62,39 @@ exports.getStoreOrders = async (req, res) => {
     const limit = parseInt(size)
     const skip = (page - 1) * size
 
-    await Order.find({
+    let orders = await Order.find({
       $and: [{ storeId: storeId }, isActive ? { isActive: isActive } : {}],
     })
+      .populate('productId', 'productName productPictures')
       .limit(limit)
       .skip(skip)
-      .then((orders) => {
-        res
-          .status(200)
-          .json(orders.length > 0 ? { orders: orders } : 'No Order')
-      })
-      .catch((error) => {
-        res.status(400).json({ status: 'fail', message: error.message })
-      })
+
+    orders = orders.map((order) => {
+      return {
+        _id: order._id,
+        isActive: order.isActive,
+        orderNumber: order.orderNumber,
+        orderStatus: order.orderStatus,
+        productName: order.productId.productName,
+        productImage: addStr(
+          order.productId.productPictures[0].img,
+          49,
+          'w_80,h_80,c_fill'
+        ),
+        name: order.name,
+        city: order.city,
+        contactNumber: order.contactNumber,
+        orderAddress: order.orderAddress,
+        orderQuantity: order.orderQuantity,
+        unit: order.productId.unit,
+        subTotal: order.subTotal,
+        totalPrice: order.totalPrice,
+        productId: order.productId._id,
+        buyerId: order.buyerId,
+        date: order.createdAt,
+      }
+    })
+    res.status(200).json(orders)
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }
@@ -92,19 +112,38 @@ exports.getBuyerOrders = async (req, res) => {
     const limit = parseInt(size)
     const skip = (page - 1) * size
 
-    await Order.find({
+    let orders = await Order.find({
       $and: [{ buyerId: req.user._id }, isActive ? { isActive: isActive } : {}],
     })
+      .populate('productId', 'productPictures productName price')
       .limit(limit)
       .skip(skip)
-      .then((orders) => {
-        res
-          .status(200)
-          .json(orders.length > 0 ? { orders: orders } : 'No Order')
-      })
-      .catch((error) => {
-        res.status(400).json({ status: 'fail', message: error.message })
-      })
+    orders = orders.map((order) => {
+      return {
+        _id: order._id,
+        isActive: order.isActive,
+        orderNumber: order.orderNumber,
+        orderStatus: order.orderStatus,
+        productName: order.productId.productName,
+        productImage: addStr(
+          order.productId.productPictures[0].img,
+          49,
+          'w_80,h_80,c_fill'
+        ),
+        name: order.name,
+        city: order.city,
+        contactNumber: order.contactNumber,
+        orderAddress: order.orderAddress,
+        orderQuantity: order.orderQuantity,
+        unit: order.productId.unit,
+        subTotal: order.subTotal,
+        totalPrice: order.totalPrice,
+        productId: order.productId._id,
+        buyerId: order.buyerId,
+        date: order.createdAt,
+      }
+    })
+    res.status(200).json(orders)
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }
@@ -155,6 +194,7 @@ exports.getOrderById = async (req, res) => {
       orderNumber: order.orderNumber,
       orderStatus: order.orderStatus,
       productName: order.productId.productName,
+      productprice: order.productId.price,
       productImage: addStr(
         order.productId.productPictures[0].img,
         49,
@@ -174,6 +214,7 @@ exports.getOrderById = async (req, res) => {
       productId: order.productId._id,
       buyerId: order.buyerId,
       storeId: order.storeId._id,
+      date: order.createdAt,
     }
     res.status(200).json(response)
   } catch (error) {

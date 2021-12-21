@@ -116,17 +116,22 @@ exports.getProductDetailsById = (req, res) => {
   }
 }
 
-exports.deleteProductById = (req, res) => {
-  const { productId } = req.body.payload
-  if (productId) {
-    Product.deleteOne({ _id: productId }).exec((error, result) => {
-      if (error) return res.status(400).json({ error })
-      if (result) {
-        res.status(202).json({ result })
-      }
+exports.deleteProductById = async (req, res) => {
+  try {
+    const { productId } = req.params
+    await Product.deleteOne({
+      $and: [{ _id: productId }, { sellerId: req.user._id }],
     })
-  } else {
-    res.status(400).json({ error: 'Params required' })
+      .then((deletedProduct) =>
+        res
+          .status(200)
+          .json({ status: 'success', message: 'product has been deleted' })
+      )
+      .catch((err) =>
+        res.status(400).json({ status: 'fail', message: err.message })
+      )
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
   }
 }
 
@@ -150,13 +155,51 @@ exports.getProducts = async (req, res) => {
     )
 }
 
-exports.getSellerProducts = async (req, res) => {
-  const products = await Product.find({ createdBy: req.user._id })
-    .select('_id name price quantity description productPictures category')
-    .populate({ path: 'category', select: '_id name' })
-    .exec()
+exports.getStoreProducts = async (req, res) => {
+  try {
+    const { isActive } = req.query
+    const products = await Product.find({
+      $and: [{ isActive: isActive }, { createdBy: req.user._id }],
+    })
+      .select(
+        '_id productName price quantity unit description productPictures category'
+      )
+      .populate({ path: 'category', select: '_id name' })
 
-  res.status(200).json({ products })
+    res.status(200).json(products)
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.changeProductStatusById = async (req, res) => {
+  try {
+    const { isActive, productId } = req.query
+
+    const product = await Product.findById({
+      _id: productId,
+    })
+    if (product.createdBy == req.user._id) {
+      product.isActive = isActive
+      product
+        .save()
+        .then((product) =>
+          res.status(200).json({
+            status: 'success',
+            message: `${product.productName} is Active Now`,
+          })
+        )
+        .catch((error) =>
+          res.status(200).json({ status: 'fail', message: error.message })
+        )
+    } else {
+      res
+        .status(400)
+        .json({ status: 'fail', message: "Product doesn't match with seller" })
+    }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
 }
 
 exports.getProductByStoreId = async (req, res) => {
@@ -266,5 +309,24 @@ exports.searchProduct = async (req, res) => {
       )
   } catch (error) {
     res.status(200).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.rateProduct = async (req, res) => {
+  try {
+    const { productId, rating } = req.query
+    if (productId && rating) {
+      const product = await Product.findById({ _id: productId })
+      product.rating = rating
+      product
+        .save()
+        .then((result) =>
+          res.status(200).json({ status: 'success', message: 'rating done.' })
+        )
+    } else {
+      res.status(400).json({ status: 'fail', message: 'queries required' })
+    }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
   }
 }
