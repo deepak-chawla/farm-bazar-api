@@ -65,7 +65,7 @@ exports.getStoreOrders = async (req, res) => {
     let orders = await Order.find({
       $and: [{ storeId: storeId }, isActive ? { isActive: isActive } : {}],
     })
-      .populate('productId', 'productName productPictures')
+      .populate('productId', 'productName productPictures unit price quantity')
       .limit(limit)
       .skip(skip)
 
@@ -76,6 +76,8 @@ exports.getStoreOrders = async (req, res) => {
         orderNumber: order.orderNumber,
         orderStatus: order.orderStatus,
         productName: order.productId.productName,
+        productPrice: order.productId.price,
+        productQuantity: order.productId.quantity,
         productImage: addStr(
           order.productId.productPictures[0].img,
           49,
@@ -94,7 +96,7 @@ exports.getStoreOrders = async (req, res) => {
         date: order.createdAt,
       }
     })
-    res.status(200).json(orders)
+    res.status(200).json({ orders: orders })
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }
@@ -115,7 +117,7 @@ exports.getBuyerOrders = async (req, res) => {
     let orders = await Order.find({
       $and: [{ buyerId: req.user._id }, isActive ? { isActive: isActive } : {}],
     })
-      .populate('productId', 'productPictures productName price')
+      .populate('productId', 'productPictures productName price quantity unit')
       .limit(limit)
       .skip(skip)
     orders = orders.map((order) => {
@@ -125,6 +127,8 @@ exports.getBuyerOrders = async (req, res) => {
         orderNumber: order.orderNumber,
         orderStatus: order.orderStatus,
         productName: order.productId.productName,
+        productPrice: order.productId.price,
+        productQuantity: order.productId.quantity,
         productImage: addStr(
           order.productId.productPictures[0].img,
           49,
@@ -143,7 +147,7 @@ exports.getBuyerOrders = async (req, res) => {
         date: order.createdAt,
       }
     })
-    res.status(200).json(orders)
+    res.status(200).json({ orders: orders })
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }
@@ -195,6 +199,7 @@ exports.getOrderById = async (req, res) => {
       orderStatus: order.orderStatus,
       productName: order.productId.productName,
       productprice: order.productId.price,
+      productQuantity: order.productId.quantity,
       productImage: addStr(
         order.productId.productPictures[0].img,
         49,
@@ -206,6 +211,7 @@ exports.getOrderById = async (req, res) => {
       orderAddress: order.orderAddress,
       orderQuantity: order.orderQuantity,
       unit: order.productId.unit,
+      deliveryCharges: order.deliveryCharges,
       subTotal: order.subTotal,
       totalPrice: order.totalPrice,
       storeName: order.storeId.storeName,

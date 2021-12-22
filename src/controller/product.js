@@ -87,7 +87,7 @@ exports.getProductDetailsById = (req, res) => {
   if (productId) {
     Product.findOne({ _id: productId })
       .select(
-        'productName price quantity unit description category location productPictures createdBy'
+        'isActive productName price quantity unit description category location productPictures createdBy'
       )
       .populate('category', 'name')
       .populate('storeId', 'storeName storeImage')
@@ -95,6 +95,7 @@ exports.getProductDetailsById = (req, res) => {
         if (error) return res.status(400).json({ error })
         if (product) {
           res.status(200).json({
+            isActive: product.isActive,
             productId: product._id,
             productName: product.productName,
             productPrice: product.price,
@@ -162,7 +163,7 @@ exports.getStoreProducts = async (req, res) => {
       $and: [{ isActive: isActive }, { createdBy: req.user._id }],
     })
       .select(
-        '_id productName price quantity unit description productPictures category'
+        '_id isActive productName price quantity unit description productPictures category'
       )
       .populate({ path: 'category', select: '_id name' })
 
@@ -186,7 +187,7 @@ exports.changeProductStatusById = async (req, res) => {
         .then((product) =>
           res.status(200).json({
             status: 'success',
-            message: `${product.productName} is Active Now`,
+            message: `${product.productName} isActive ${isActive}`,
           })
         )
         .catch((error) =>
