@@ -12,6 +12,7 @@ const {
   getProductByStoreId,
   changeProductStatusById,
   rateProduct,
+  editProduct,
 } = require('../controller/product')
 const { requireSignIn } = require('../common-middleware')
 const upload = require('../utils/multer')
@@ -33,7 +34,7 @@ router.post(
 router.get('/product/getProductByStatus/', getProductByStatus)
 router.get('/product/getProductByStoreId/', getProductByStoreId)
 router.get('/product/getProducts', getProducts)
-router.get('/products/:slug', getProductsBySlug)
+router.post('/product/edit/:productId', editProduct)
 router.get('/product/get/:productId', getProductDetailsById)
 router.get('/product/', searchProduct)
 router.post('/product/rating', requireSignIn, rateProduct)

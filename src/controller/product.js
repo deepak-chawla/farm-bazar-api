@@ -62,37 +62,53 @@ exports.addProduct = async (req, res) => {
   }
 }
 
-exports.getProductsBySlug = (req, res) => {
-  const { slug } = req.params
-  Category.findOne({ slug: slug })
-    .select('_id type')
-    .exec((error, category) => {
-      if (error) {
-        return res.status(400).json({ error })
-      }
-      if (category) {
-        Product.find({ category: category._id }).exec((error, products) => {
-          if (error) {
-            return res.status(400).json({ error })
-          } else {
-            res.status(200).json({ products })
-          }
-        })
+exports.editProduct = async (req, res) => {
+  try {
+    const { productId } = req.params
+    const {
+      productName,
+      price,
+      description,
+      category,
+      unit,
+      quantity,
+      location,
+    } = req.body
+    const product = await Product.findById(productId)
+    product.productName = productName || product.productName
+    product.price = price || product.price
+    product.description = description || product.description
+    product.category = category || product.category
+    product.unit = unit || product.unit
+    product.quantity = quantity || product.quantity
+    product.save((err, save) => {
+      if (err) {
+        res.status(400).json({ status: 'fail', message: err.message })
+      } else {
+        res
+          .status(200)
+          .json({ status: 'success', message: 'Product successfully Edited' })
       }
     })
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
 }
 
 exports.getProductDetailsById = (req, res) => {
   const { productId } = req.params
   if (productId) {
-    Product.findOne({ _id: productId })
+    Product.findById({ _id: productId })
       .select(
         'isActive productName price quantity unit description category location productPictures createdBy'
       )
       .populate('category', 'name')
       .populate('storeId', 'storeName storeImage')
       .exec((error, product) => {
-        if (error) return res.status(400).json({ error })
+        if (error)
+          return res
+            .status(400)
+            .json({ status: 'fail', message: error.message })
         if (product) {
           res.status(200).json({
             isActive: product.isActive,
@@ -121,7 +137,7 @@ exports.deleteProductById = async (req, res) => {
   try {
     const { productId } = req.params
     await Product.deleteOne({
-      $and: [{ _id: productId }, { sellerId: req.user._id }],
+      _id: productId,
     })
       .then((deletedProduct) =>
         res
@@ -176,10 +192,7 @@ exports.getStoreProducts = async (req, res) => {
 exports.changeProductStatusById = async (req, res) => {
   try {
     const { isActive, productId } = req.query
-
-    const product = await Product.findById({
-      _id: productId,
-    })
+    const product = await Product.findById({ _id: productId })
     if (product.createdBy == req.user._id) {
       product.isActive = isActive
       product
@@ -187,7 +200,9 @@ exports.changeProductStatusById = async (req, res) => {
         .then((product) =>
           res.status(200).json({
             status: 'success',
-            message: `${product.productName} isActive ${isActive}`,
+            message: `${product.productName} Status changed ${
+              isActive == true ? 'Active Product' : 'Discontinued Product'
+            }`,
           })
         )
         .catch((error) =>

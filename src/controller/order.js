@@ -209,6 +209,7 @@ exports.getOrderById = async (req, res) => {
       city: order.city,
       contactNumber: order.contactNumber,
       orderAddress: order.orderAddress,
+      postalCode: order.postalCode,
       orderQuantity: order.orderQuantity,
       unit: order.productId.unit,
       deliveryCharges: order.deliveryCharges,

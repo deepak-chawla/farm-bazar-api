@@ -1,6 +1,7 @@
 const { addStr } = require('../helpers')
 const Store = require('../models/shop')
 const User = require('../models/user')
+const cloudinary = require('../utils/cloudinary')
 
 exports.createStore = async (req, res) => {
   const { storeName, about } = req.body
@@ -30,6 +31,50 @@ exports.createStore = async (req, res) => {
       status: 'fail',
       message: 'You already have a Store.',
     })
+  }
+}
+
+exports.changeStorePhoto = async (req, res) => {
+  try {
+    const store = await Store.findOne({ owner: req.user._id })
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      quality: 'auto',
+      folder: 'store/',
+    })
+    store.storeImage = result.secure_url
+    store.cloudinary_id = result.public_id
+    store.save((err, url) => {
+      if (err) {
+        res.status(400).json({ status: 'fail', message: err.message })
+      } else {
+        res
+          .status(200)
+          .json({ status: 'success', message: 'Store image has been Updated.' })
+      }
+    })
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.editStore = async (req, res) => {
+  try {
+    const store = await Store.findOne({ owner: req.user._id })
+
+    store.storeName = req.body.storeName || store.storeName
+    store.lastName = req.body.aboutStore || store.aboutStore
+    store.save((err, store) => {
+      if (err) {
+        res.status(400).json({ status: 'fail', message: err.message })
+      } else {
+        res.status(200).json({
+          status: 'success',
+          message: `Store has been Updated.`,
+        })
+      }
+    })
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
   }
 }
 

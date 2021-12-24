@@ -4,7 +4,8 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon index.js"
   },
   "author": "deepak chawla",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "mongoose": "^5.12.5",
     "multer": "^1.4.2",
     "nodemailer": "^6.6.3",
+    "otp-generator": "^4.0.0",
     "shortid": "^2.2.16",
     "slugify": "^1.5.0"
   },

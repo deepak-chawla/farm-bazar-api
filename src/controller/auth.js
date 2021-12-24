@@ -1,27 +1,38 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const bcrypt = require("bcrypt");
-const { sendMail } = require('../helpers');
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
+const { sendMail } = require('../helpers')
+const otpGenerator = require('otp-generator')
 
 const generateJwtToken = (_id, email) => {
-  return jwt.sign({ _id, email }, process.env.JWT_KEY);
-};
+  return jwt.sign({ _id, email }, process.env.JWT_KEY)
+}
 
 //======================================SIGN UP==========================================
-
 exports.signup = (req, res) => {
   try {
     User.findOne({ email: req.body.email })
-      .then(async user => {
+      .then(async (user) => {
         if (user) {
           return res.status(400).json({
             status: 'fail',
-            message: "User already registered",
-          });
+            message: 'User already registered',
+          })
         } else {
-          const { firstName, lastName, contactNumber, email, password, gender,
-            dateOfBirth, province, city, address, postalCode } = req.body;
-          const hash_password = await bcrypt.hash(password, 10);
+          const {
+            firstName,
+            lastName,
+            contactNumber,
+            email,
+            password,
+            gender,
+            dateOfBirth,
+            province,
+            city,
+            address,
+            postalCode,
+          } = req.body
+          const hash_password = await bcrypt.hash(password, 10)
 
           const _user = new User({
             firstName,
@@ -34,174 +45,185 @@ exports.signup = (req, res) => {
             province,
             city,
             address,
-            postalCode
-          });
+            postalCode,
+          })
 
-          _user.save()
-            .then(user => {
-              const token = generateJwtToken(user._id, user.email);
+          _user
+            .save()
+            .then((user) => {
+              const token = generateJwtToken(user._id, user.email)
 
               const data = {
                 from: `farmbazar@support.com`,
                 to: `${email}`,
                 subject: 'Farm Bazar Email Verification',
-                html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`
-              };
+                html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`,
+              }
 
-              sendMail(data);
+              sendMail(data)
 
               return res.status(201).json({
                 status: 'success',
-                message: 'User Created Please Check Your Email to Verify'
-              });
+                message: 'User Created Please Check Your Email to Verify',
+              })
             })
-            .catch(error => {
+            .catch((error) => {
               res.status(400).json({
                 status: 'fail',
-                message: error.message
-              });
-            }
-            );
+                message: error.message,
+              })
+            })
         }
-      }).catch(error => res.status(400).json({ status: 'fail', message: error.message }))
+      })
+      .catch((error) =>
+        res.status(400).json({ status: 'fail', message: error.message })
+      )
   } catch (error) {
-    console.log(error.message);
+    console.log(error.message)
   }
 }
 
 //==============================EMAIL VERIFY===================================================
-
 exports.verifyEmail = async (req, res) => {
-  const { token } = req.params;
+  const { token } = req.params
   const decode = jwt.decode(token, process.env.JWT_KEY)
-  const user = await User.findOne({ email: decode.email });
+  const user = await User.findOne({ email: decode.email })
 
   if (user) {
-    user.isActive = true;
-    user.save();
+    user.isActive = true
+    user.save()
     res.status(200).json({
       status: 'success',
-      message: "Your account is activated, You can login now"
+      message: 'Your account is activated, You can login now',
     })
   } else {
     res.status(400).json({
       status: 'fail',
-      message: 'User Not Found'
-    });
+      message: 'User Not Found',
+    })
   }
 }
 
 //==========================================RESEND LINK==============================================
-
 exports.reSendVerifyLink = (req, res) => {
   User.findOne({ email: req.body.email }).exec((err, user) => {
     if (user) {
-      const token = generateJwtToken(user._id, user.email);
-      sendMail(user.email, token);
+      const token = generateJwtToken(user._id, user.email)
+      sendMail(user.email, token)
 
       return res.status(200).json({
         status: 'success',
-        message: 'Please check your email for verification link'
-      });
-    }
-    else {
+        message: 'Please check your email for verification link',
+      })
+    } else {
       return res.status(400).json({
         status: 'fail',
-        message: 'This email is not found in our record, Please register'
-      });
+        message: 'This email is not found in our record, Please register',
+      })
     }
-  });
+  })
 }
 
 //==================================FORGET PASSWORD======================================
+exports.forgetPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email })
+    if (user) {
+      const password = otpGenerator.generate(10, {
+        specialChars: true,
+        alphabets: true,
+      })
+      const hash_password = await bcrypt.hash(password, 10)
+      user.hash_password = hash_password
+      await user.save()
+      const data = {
+        from: `farmbazar@support.com`,
+        to: `${user.email}`,
+        subject: 'Password Reset',
+        html: `<h1>Your New Password is:</h1><h3>${password}</h3>`,
+      }
 
-// exports.forgetPassword = (req, res) => {
-//   User.findOne({ email: req.body.email }).exec((err, user) => {
-//     if (user) {
-
-//       const OTP = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-
-//       user.otp.code = OTP;
-//       user.save();
-
-//       const data = {
-//         from: `farmbazar@support.com`,
-//         to: `${user.email}`,
-//         subject: 'Password Reset',
-//         html: `<h1>Verification Code is:</h1><h3>${user.otp.code}</h3>`
-//       };
-
-//       console.log(OTP);
-
-//       sendMail(data);
-
-//       return res.status(200).json({
-//         status: 'success',
-//         message: 'Please check your email for verification code'
-//       });
-//     }
-//     else {
-//       return res.status(400).json({
-//         status: 'fail',
-//         message: 'This email is not found in our record, Please register'
-//       });
-//     }
-//   });
-// }
-
-//=====================================VERIFY OTP==================================================
-
-// exports.verifyOtp = async (req, res) => {
-//   const user = await User.findOne({'otp.code': req.body.code});
-//   if(user){
-//     user.otp.isRight = true;
-//   }
-// }
-
+      sendMail(data)
+      return res.status(200).json({
+        status: 'success',
+        message: 'Please check your email for credentials',
+      })
+    } else {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'This email is not found in our record, Please register',
+      })
+    }
+  } catch (error) {
+    res.status(200).json({ status: 'fail', message: error.message })
+  }
+}
 
 //=======================================SIGN IN===================================================
-
 exports.signin = async (req, res) => {
   try {
     User.findOne({ email: req.body.email })
-      .then(async user => {
+      .then(async (user) => {
         if (user) {
           if (user.isActive) {
-            const isPassword = await user.authenticate(req.body.password);
+            const isPassword = await user.authenticate(req.body.password)
             if (isPassword) {
-              const token = generateJwtToken(user._id, user.email);
-              const { _id, fullName, email } = user;
+              const token = generateJwtToken(user._id, user.email)
+              const {
+                _id,
+                isSeller,
+                fullName,
+                email,
+                contactNumber,
+                gender,
+                dateOfBirth,
+                city,
+                address,
+                postalCode,
+                profilePicture,
+              } = user
 
               res.status(200).json({
-                status: "success",
-                message: "User Successfully Logged In",
+                status: 'success',
+                message: 'User Successfully Logged In',
                 token,
-                user: { _id, fullName, email }
-              });
-            }
-            else {
+                user: {
+                  _id,
+                  isSeller,
+                  fullName,
+                  email,
+                  contactNumber,
+                  gender,
+                  dateOfBirth,
+                  city,
+                  address,
+                  postalCode,
+                  profilePicture,
+                },
+              })
+            } else {
               return res.status(400).json({
                 status: 'fail',
-                message: "Password Incorrect"
-              });
+                message: 'Password Incorrect',
+              })
             }
-          }
-          else {
+          } else {
             return res.status(200).json({
               status: 'success',
-              message: "Please Activate Your Account"
-            });
+              message: 'Please Activate Your Account',
+            })
           }
-        }
-        else {
+        } else {
           return res.status(400).json({
             status: 'fail',
-            message: "User Not Found"
-          });
+            message: 'User Not Found',
+          })
         }
       })
-      .catch(error => res.status(400).json({ status: 'fail', message: error.message }));
+      .catch((error) =>
+        res.status(400).json({ status: 'fail', message: error.message })
+      )
   } catch (error) {
     console.log(error.message)
   }
-};
+}
