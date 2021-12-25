@@ -228,3 +228,26 @@ exports.getOrderById = async (req, res) => {
     res.status(400).json({ status: 'fail', message: error.message })
   }
 }
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params
+    const order = await Order.findById(orderId)
+    if (order.orderStatus == 'pending') {
+      if (order.buyerId == req.user._id) {
+        await order.delete()
+        res
+          .status(200)
+          .json({ status: 'success', message: 'Order has been canceled.' })
+      } else {
+        res
+          .status(400)
+          .json({ status: 'fail', message: "BuyerID didn't match." })
+      }
+    } else {
+      res.status(400).json({ status: 'fail', message: "You Can't Cancel now" })
+    }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}

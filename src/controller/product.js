@@ -200,8 +200,8 @@ exports.changeProductStatusById = async (req, res) => {
         .then((product) =>
           res.status(200).json({
             status: 'success',
-            message: `${product.productName} Status changed ${
-              isActive == true ? 'Active Product' : 'Discontinued Product'
+            message: `${product.productName} Status changed to ${
+              isActive === true ? 'Active Product' : 'Discontinued Product'
             }`,
           })
         )
@@ -332,13 +332,32 @@ exports.rateProduct = async (req, res) => {
   try {
     const { productId, rating } = req.query
     if (productId && rating) {
-      const product = await Product.findById({ _id: productId })
-      product.rating = rating
-      product
-        .save()
-        .then((result) =>
-          res.status(200).json({ status: 'success', message: 'rating done.' })
-        )
+      let userExist = false
+      const product = await Product.findById(productId)
+      for (rate of product.ratings) {
+        if (rate.userId == req.user._id) {
+          userExist = true
+        }
+      }
+      if (!userExist) {
+        product.ratings.push({
+          userId: req.user._id,
+          rating: rating,
+        })
+        product.save((err, saved) => {
+          if (!err) {
+            res.status(200).json({
+              status: 'success',
+              message: 'Thank You for Rate our Product',
+            })
+          }
+        })
+      } else {
+        res.status(400).json({
+          status: 'fail',
+          message: 'You already rated this product',
+        })
+      }
     } else {
       res.status(400).json({ status: 'fail', message: 'queries required' })
     }

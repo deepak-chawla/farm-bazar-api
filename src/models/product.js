@@ -38,9 +38,12 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    rating: {
-      type: Number,
-    },
+    ratings: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        rating: Number,
+      },
+    ],
     productPictures: [
       {
         img: { type: String },
@@ -72,5 +75,13 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 )
+
+productSchema.virtual('average_rating').get(function () {
+  let totalSum
+  for (let i = 0; i <= this.ratings.length; i++) {
+    totalSum += this.ratings[i].rating
+  }
+  return totalSum / this.ratings.length
+})
 
 module.exports = mongoose.model('Product', productSchema)
