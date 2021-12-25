@@ -4,11 +4,12 @@ const User = require('../models/user')
 const cloudinary = require('../utils/cloudinary')
 
 exports.createStore = async (req, res) => {
-  const { storeName, about } = req.body
+  const { storeName, aboutStore, deliveryOutCity } = req.body
   const _store = new Store({
     owner: req.user._id,
     storeName,
-    about,
+    aboutStore,
+    deliveryOutCity,
   })
   const user = await User.findById(req.user._id)
   if (!user.isSeller) {
@@ -122,6 +123,33 @@ exports.getOwnerById = async (req, res) => {
     } else {
       res.status(400).json({ status: 'fail', message: 'ownerId Required' })
     }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.changeDeliveryOutCity = async (req, res) => {
+  try {
+    const { deliveryOutCity } = req.query
+    const store = await Store.findOne({ owner: req.user._id })
+    store.deliveryOutCity = deliveryOutCity
+    store.save((err, save) => {
+      if (!err) {
+        res.status(200).json({
+          status: 'success',
+          message: `delivery Out Of City ${deliveryOutCity}`,
+        })
+      }
+    })
+  } catch (error) {
+    res.status(200).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.getStore = async (req, res) => {
+  try {
+    const store = await Store.findOne({ owner: req.user._id })
+    res.status(200).json(store)
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }

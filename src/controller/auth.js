@@ -3,6 +3,7 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const { sendMail } = require('../helpers')
 const otpGenerator = require('otp-generator')
+const jwtDecode = require('jwt-decode')
 
 const generateJwtToken = (_id, email) => {
   return jwt.sign({ _id, email }, process.env.JWT_KEY)
@@ -86,8 +87,9 @@ exports.signup = (req, res) => {
 //==============================EMAIL VERIFY===================================================
 exports.verifyEmail = async (req, res) => {
   const { token } = req.params
-  const decode = jwt.decode(token, process.env.JWT_KEY)
-  const user = await User.findOne({ email: decode.email })
+  const decoded = jwtDecode(token)
+
+  const user = await User.findOne({ email: decoded.email })
 
   if (user) {
     user.isActive = true
@@ -109,7 +111,15 @@ exports.reSendVerifyLink = (req, res) => {
   User.findOne({ email: req.body.email }).exec((err, user) => {
     if (user) {
       const token = generateJwtToken(user._id, user.email)
-      sendMail(user.email, token)
+
+      const data = {
+        from: `farmbazar@support.com`,
+        to: `${user.email}`,
+        subject: 'Farm Bazar Email Verification',
+        html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`,
+      }
+
+      sendMail(data)
 
       return res.status(200).json({
         status: 'success',

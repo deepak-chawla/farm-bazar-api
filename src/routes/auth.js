@@ -6,7 +6,6 @@ const {
   verifyEmail,
   reSendVerifyLink,
   forgetPassword,
-  verifyOtp,
 } = require('../controller/auth')
 const {
   isValidateSignUp,

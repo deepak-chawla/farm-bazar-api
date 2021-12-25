@@ -19,6 +19,10 @@ const storeSchema = new mongoose.Schema(
       default:
         'https://res.cloudinary.com/deetech/image/upload/v1639821889/stores/store-image_ppj6ya.jpg',
     },
+    deliveryOutCity: {
+      type: Boolean,
+      default: false,
+    },
     cloudinary_id: {
       type: String,
     },

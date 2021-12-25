@@ -1,9 +1,11 @@
 const User = require('../models/user')
+const bcrypt = require('bcrypt')
 const path = require('path')
 const cloudinary = require('../utils/cloudinary')
 
 exports.updateUser = async (req, res) => {
   User.findById({ _id: req.user._id })
+    .select('-hash_password')
     .then((user) => {
       user.firstName = req.body.firstName || user.firstName
       user.lastName = req.body.lastName || user.lastName
@@ -19,6 +21,7 @@ exports.updateUser = async (req, res) => {
           res.status(200).json({
             status: 'success',
             message: 'User successfully Updated',
+            user: user,
           })
         })
         .catch((error) =>
@@ -57,13 +60,11 @@ exports.userInfo = async (req, res) => {
 exports.profile = async (req, res) => {
   User.findById({ _id: req.user._id })
     .then((user) => {
-      res
-        .status(200)
-        .json({
-          isSeller: user.isSeller,
-          fullName: user.fullName,
-          userImgUrl: user.profilePicture,
-        })
+      res.status(200).json({
+        isSeller: user.isSeller,
+        fullName: user.fullName,
+        userImgUrl: user.profilePicture,
+      })
     })
     .catch((error) => {
       res.status(404).json({ status: 'fail', message: error.message })
@@ -94,5 +95,29 @@ exports.updateUserPhoto = async (req, res) => {
         }
       })
       .catch()
+  }
+}
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body
+    const user = await User.findById(req.user._id)
+    const isPassword = await user.authenticate(oldPassword)
+    if (isPassword) {
+      const hash_password = await bcrypt.hash(newPassword, 10)
+      user.hash_password = hash_password
+      await user.save((err, save) => {
+        if (!err) {
+          res.status(200).json({
+            status: 'success',
+            message: 'Password Successfully Chnaged',
+          })
+        }
+      })
+    } else {
+      res.status(400).json({ status: 'fail', message: 'Wrong Password' })
+    }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
   }
 }
