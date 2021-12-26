@@ -3,6 +3,7 @@ const product = require('../models/product')
 const Product = require('../models/product')
 const User = require('../models/user')
 const cloudinary = require('../utils/cloudinary')
+const { addStr } = require('../helpers')
 
 exports.addProduct = async (req, res) => {
   const {
@@ -300,7 +301,11 @@ exports.searchProduct = async (req, res) => {
         let response = products.map((product) => {
           let productPicture
           if (product.productPictures.length > 0) {
-            productPicture = product.productPictures[0].img
+            productPicture = addStr(
+              product.productPictures[0].img,
+              49,
+              'w_80,h_80,c_fill'
+            )
           } else {
             productPicture = ''
           }

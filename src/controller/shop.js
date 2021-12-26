@@ -148,7 +148,10 @@ exports.changeDeliveryOutCity = async (req, res) => {
 
 exports.getStore = async (req, res) => {
   try {
-    const store = await Store.findOne({ owner: req.user._id })
+    const store = await Store.findOne({ owner: req.user._id }).populate(
+      'owner',
+      'firstName lastName profilePicture'
+    )
     res.status(200).json(store)
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })

@@ -75,24 +75,24 @@ exports.updateUserPhoto = async (req, res) => {
   if (req.file) {
     User.findById(req.user._id)
       .then(async (user) => {
-        if (user.cloudinary_id.length) {
+        if (user.cloudinary_id) {
           await cloudinary.uploader.destroy(user.cloudinary_id)
-          const result = await cloudinary.uploader.upload(req.file.path, {
-            quality: 'auto',
-            folder: 'users/',
-          })
-          user.profilePicture = result.secure_url
-          user.cloudinary_id = result.public_id
-          user.save((err, url) => {
-            if (err) {
-              res.status(400).json({ status: 'fail', message: err.message })
-            } else {
-              res
-                .status(200)
-                .json({ status: 'success', profilePicture: url.profilePicture })
-            }
-          })
         }
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          quality: 'auto',
+          folder: 'users/',
+        })
+        user.profilePicture = result.secure_url
+        user.cloudinary_id = result.public_id
+        user.save((err, url) => {
+          if (err) {
+            res.status(400).json({ status: 'fail', message: err.message })
+          } else {
+            res
+              .status(200)
+              .json({ status: 'success', profilePicture: url.profilePicture })
+          }
+        })
       })
       .catch()
   }

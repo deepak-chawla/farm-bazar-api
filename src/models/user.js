@@ -27,7 +27,8 @@ const userSchema = mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: '',
+      default:
+        'https://res.cloudinary.com/deetech/image/upload/w_80,h_80,c_fill/users/profile-avatar_lkpgql.jpg',
     },
     province: {
       type: String,
