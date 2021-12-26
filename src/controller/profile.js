@@ -21,7 +21,19 @@ exports.updateUser = async (req, res) => {
           res.status(200).json({
             status: 'success',
             message: 'User successfully Updated',
-            user: user,
+            user: {
+              _id: user._id,
+              isSeller: user.isSeller,
+              fullName: user.fullName,
+              email: user.email,
+              contactNumber: user.contactNumber,
+              gender: user.gender,
+              dateOfBirth: user.dateOfBirth,
+              city: user.city,
+              address: user.address,
+              postalCode: user.postalCode,
+              profilePicture: user.profilePicture,
+            },
           })
         })
         .catch((error) =>
