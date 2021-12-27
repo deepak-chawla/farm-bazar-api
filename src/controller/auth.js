@@ -53,7 +53,7 @@ exports.signup = (req, res) => {
               const token = generateJwtToken(user._id, user.email)
 
               const data = {
-                from: `farmbazar@support.com`,
+                from: `${process.env.USER_EMAIL}`,
                 to: `${email}`,
                 subject: 'Farm Bazar Email Verification',
                 html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`,
@@ -111,7 +111,7 @@ exports.reSendVerifyLink = (req, res) => {
       const token = generateJwtToken(user._id, user.email)
 
       const data = {
-        from: `farmbazar@support.com`,
+        from: `${process.env.USER_EMAIL}`,
         to: `${user.email}`,
         subject: 'Farm Bazar Email Verification',
         html: `<h1>This is your verification link </h1><a>https://farm-bazar-api.herokuapp.com/api/verify/${token}</a>`,
@@ -145,7 +145,7 @@ exports.forgetPassword = async (req, res) => {
       user.hash_password = hash_password
       await user.save()
       const data = {
-        from: `farmbazar@support.com`,
+        from: `${process.env.USER_EMAIL}`,
         to: `${user.email}`,
         subject: 'Password Reset',
         html: `<h1>Your New Password is:</h1><h3>${password}</h3>`,
