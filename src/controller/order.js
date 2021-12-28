@@ -1,7 +1,7 @@
 const Order = require('../models/order')
 const Product = require('../models/product')
 const User = require('../models/user')
-const { addStr } = require('../helpers/index')
+const { addStr, notifyUser } = require('../helpers/index')
 
 exports.addOrder = async (req, res) => {
   const {
@@ -15,7 +15,10 @@ exports.addOrder = async (req, res) => {
   } = req.body
   const { productId } = req.params
   try {
-    const product = await Product.findById(productId)
+    const product = await Product.findById(productId).populate(
+      'createdBy',
+      'fcm_token'
+    )
     const order = new Order({
       orderNumber: Date.now(),
       name: name,
@@ -34,6 +37,15 @@ exports.addOrder = async (req, res) => {
     await order
       .save()
       .then((order) => {
+        const notification = {
+          title: 'New Order',
+          body: `${order.name} ordered ${product.productName}`,
+        }
+        const data = {
+          title: 'Order Detail',
+          body: `${JSON.stringify(order)}`,
+        }
+        notifyUser(product.createdBy.fcm_token, notification, data)
         res.status(201).json({
           status: 'success',
           message: `#${order.orderNumber} Order has been placed`,

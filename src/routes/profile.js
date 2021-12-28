@@ -7,6 +7,7 @@ const {
   updateUserPhoto,
   profile,
   changePassword,
+  updateFcmToken,
 } = require('../controller/profile')
 const { requireSignIn } = require('../common-middleware/')
 
@@ -31,5 +32,6 @@ router.put(
   updateUserPhoto
 )
 router.post('/change-password', requireSignIn, changePassword)
+router.post('/update/fcm', requireSignIn, updateFcmToken)
 
 module.exports = router

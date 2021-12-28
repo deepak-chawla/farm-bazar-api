@@ -1,4 +1,7 @@
 const nodemailer = require('nodemailer')
+const FCM = require('fcm-node')
+const serverKey = `${process.env.FCM_SERVER_KEY}`
+const fcm = new FCM(serverKey)
 
 const transporter = nodemailer.createTransport({
   service: 'outlook',
@@ -23,4 +26,23 @@ exports.addStr = (str, index, stringToAdd) => {
   let endStr = str.substring(index, str.length)
   let str2 = endStr.substring(endStr.indexOf('/'), endStr.length)
   return str1 + stringToAdd + str2
+}
+
+exports.notifyUser = (token, notification, data) => {
+  if (token) {
+    let message = {
+      to: token,
+      notification: notification,
+      data: data,
+    }
+
+    fcm.send(message, function (err, response) {
+      if (err) {
+        console.log('Something has gone wrong!' + err)
+        console.log('Respponse:! ' + response)
+      } else {
+        console.log('Successfully sent with response: ', response)
+      }
+    })
+  }
 }

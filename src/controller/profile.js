@@ -11,7 +11,8 @@ exports.updateUser = async (req, res) => {
       user.lastName = req.body.lastName || user.lastName
       user.dateOfBirth = req.body.dateOfBirth || user.dateOfBirth
       user.gender = req.body.gender || user.gender
-      user.postalCode = req.body.postalCode || user.userImgUrl
+      user.contactNumber = req.body.contactNumber || user.contactNumber
+      user.postalCode = req.body.postalCode || user.postalCode
       user.address = req.body.address || user.address
       user.city = req.body.city || user.city
       user.province = req.body.province || user.province
@@ -129,6 +130,24 @@ exports.changePassword = async (req, res) => {
     } else {
       res.status(400).json({ status: 'fail', message: 'Wrong Password' })
     }
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.updateFcmToken = async (req, res) => {
+  try {
+    const { token } = req.query
+    const user = await User.findById(req.user._id)
+    user.fcm_token = token
+    user.save((err, saveUser) => {
+      if (!err) {
+        res.status(200).json({
+          status: 'success',
+          message: 'FCM token updated.',
+        })
+      }
+    })
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }

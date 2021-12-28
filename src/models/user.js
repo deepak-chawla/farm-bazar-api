@@ -77,6 +77,10 @@ const userSchema = mongoose.Schema(
     cloudinary_id: {
       type: String,
     },
+    fcm_token: {
+      type: String,
+      default: '',
+    },
   },
   { timestamps: true }
 )

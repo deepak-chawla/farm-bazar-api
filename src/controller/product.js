@@ -338,7 +338,8 @@ exports.rateProduct = async (req, res) => {
     const { productId, rating } = req.query
     if (productId && rating) {
       let userExist = false
-      const product = await Product.findById(productId)
+      const product = await Product.findById({ _id: productId })
+      console.log(product)
       for (rate of product.ratings) {
         if (rate.userId == req.user._id) {
           userExist = true

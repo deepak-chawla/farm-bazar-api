@@ -42,6 +42,9 @@ exports.changeStorePhoto = async (req, res) => {
       quality: 'auto',
       folder: 'store/',
     })
+    if (store.cloudinary_id) {
+      await cloudinary.uploader.destroy(store.cloudinary_id)
+    }
     store.storeImage = result.secure_url
     store.cloudinary_id = result.public_id
     store.save((err, url) => {

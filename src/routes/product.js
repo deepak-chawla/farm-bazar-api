@@ -37,5 +37,6 @@ router.get('/product/getProducts', getProducts)
 router.post('/product/edit/:productId', editProduct)
 router.get('/product/get/:productId', getProductDetailsById)
 router.get('/product/', searchProduct)
+router.put('/product/rating', requireSignIn, rateProduct)
 
 module.exports = router
