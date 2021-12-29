@@ -283,6 +283,7 @@ exports.searchProduct = async (req, res) => {
     const skip = (page - 1) * size
 
     const regex = RegExp(query, 'i')
+    location = RegExp(location, 'i')
     await Product.find({
       $and: [
         category ? { category: category } : {},
