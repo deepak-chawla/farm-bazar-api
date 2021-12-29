@@ -169,17 +169,29 @@ exports.changeOrderStatusById = async (req, res) => {
   const { orderId, status } = req.query
   if (orderId && status) {
     try {
-      const order = await Order.findById({ _id: orderId })
+      const order = await Order.findById({ _id: orderId }).populate(
+        'buyerId',
+        'fcm_token'
+      )
       if (status === 'completed') {
         order.isActive = false
       } else {
         order.isActive = true
       }
       order.orderStatus = status
-      order.save((err) => {
+      order.save((err, order) => {
         if (err) {
           res.status(400).json({ status: 'fail', message: err.message })
         } else {
+          const notification = {
+            title: 'Your Order Status Changed',
+            body: `order ${order.orderNumber} is ${order.orderStatus}`,
+          }
+          const data = {
+            title: 'Order Detail',
+            body: `${JSON.stringify(order)}`,
+          }
+          notifyUser(order.buyerId.fcm_token, notification, data)
           res
             .status(200)
             .json({ status: 'success', message: 'Status Changed.' })

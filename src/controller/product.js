@@ -321,9 +321,7 @@ exports.searchProduct = async (req, res) => {
           }
         })
 
-        res
-          .status(200)
-          .json(products.length > 0 ? { products: response } : 'Not Available')
+        res.status(200).json(products.length > 0 ? { products: response } : [])
       })
       .catch((err) =>
         res.status(200).json({ status: 'fail', message: err.message })
@@ -354,7 +352,7 @@ exports.rateProduct = async (req, res) => {
           if (!err) {
             res.status(200).json({
               status: 'success',
-              message: 'Thank You for Rate our Product',
+              message: 'Thank You for Rating our Product',
             })
           }
         })
