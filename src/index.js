@@ -12,6 +12,7 @@ const profileRouter = require('./routes/profile')
 const adminRouter = require('./routes/admin')
 const orderRouter = require('./routes/order')
 const favRouter = require('./routes/favourite')
+const postRouter = require('./routes/post')
 
 mongoose
   .connect(
@@ -40,6 +41,7 @@ app.use('/api', shopRouter)
 app.use('/api', profileRouter)
 app.use('/api', orderRouter)
 app.use('/api', favRouter)
+app.use('/api', postRouter)
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`)

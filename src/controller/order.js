@@ -77,6 +77,7 @@ exports.getStoreOrders = async (req, res) => {
     let orders = await Order.find({
       $and: [{ storeId: storeId }, isActive ? { isActive: isActive } : {}],
     })
+      .sort({ createdAt: 'desc' })
       .populate('productId', 'productName productPictures unit price quantity')
       .limit(limit)
       .skip(skip)
@@ -129,6 +130,7 @@ exports.getBuyerOrders = async (req, res) => {
     let orders = await Order.find({
       $and: [{ buyerId: req.user._id }, isActive ? { isActive: isActive } : {}],
     })
+      .sort({ createdAt: 'desc' })
       .populate('productId', 'productPictures productName price quantity unit')
       .limit(limit)
       .skip(skip)

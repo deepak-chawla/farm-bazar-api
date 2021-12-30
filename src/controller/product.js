@@ -179,6 +179,7 @@ exports.getStoreProducts = async (req, res) => {
     const products = await Product.find({
       $and: [{ isActive: isActive }, { createdBy: req.user._id }],
     })
+      .sort({ updatedAt: 'desc' })
       .select(
         '_id isActive productName price quantity unit description productPictures category'
       )
@@ -201,8 +202,8 @@ exports.changeProductStatusById = async (req, res) => {
         .then((product) =>
           res.status(200).json({
             status: 'success',
-            message: `${product.productName} Status changed to ${
-              isActive === true ? 'Active Product' : 'Discontinued Product'
+            message: `${product.productName} Status has changed to ${
+              isActive == 'true' ? 'Active' : 'Discontinued'
             }`,
           })
         )
