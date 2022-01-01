@@ -115,18 +115,30 @@ exports.getAllPosts = async (req, res) => {
 
 exports.getMyPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ createdBy: req.user._id })
+    let posts = await Post.find({ createdBy: req.user._id })
+    posts = posts.map((post) => {
+      return {
+        ...post._doc,
+        image: addStr(post.image, 49, 'w_80,h_80,c_fill'),
+      }
+    })
     res.status(200).json({ posts: posts })
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }
 }
 
-exports.searchProduct = async (req, res) => {
+exports.searchPost = async (req, res) => {
   try {
     let { query } = req.query
     const regex = RegExp(query, 'i')
-    const posts = await Post.find({ title: regex })
+    let posts = await Post.find({ title: regex })
+    posts = posts.map((post) => {
+      return {
+        ...post._doc,
+        image: addStr(post.image, 49, 'w_80,h_80,c_fill'),
+      }
+    })
     res.status(200).json({ posts: posts })
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
