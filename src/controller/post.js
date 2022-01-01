@@ -58,13 +58,24 @@ exports.editPost = async (req, res) => {
     const { title, description } = req.body
     const post = await Post.findById(postId)
     if (post.createdBy == req.user._id) {
+      if (req.file) {
+        const image = req.file.path
+        const result = await cloudinary.uploader.upload(image, {
+          quality: 'auto',
+          folder: 'posts/',
+        })
+        await cloudinary.uploader.destroy(post.cloudinary_id)
+        post.image = result.secure_url
+        post.cloudinary_id = result.public_id
+      }
       post.title = title || post.title
       post.description = description || post.description
       post.save((err, saved) => {
         if (!err) {
-          res
-            .status(200)
-            .json({ status: 'success', message: `${saved.title} has Edited.` })
+          res.status(200).json({
+            status: 'success',
+            message: `${saved.title} has been Edited.`,
+          })
         }
       })
     } else {
@@ -96,6 +107,26 @@ exports.getAllPosts = async (req, res) => {
         image: addStr(post.image, 49, 'w_80,h_80,c_fill'),
       }
     })
+    res.status(200).json({ posts: posts })
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.getMyPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ createdBy: req.user._id })
+    res.status(200).json({ posts: posts })
+  } catch (error) {
+    res.status(400).json({ status: 'fail', message: error.message })
+  }
+}
+
+exports.searchProduct = async (req, res) => {
+  try {
+    let { query } = req.query
+    const regex = RegExp(query, 'i')
+    const posts = await Post.find({ title: regex })
     res.status(200).json({ posts: posts })
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })

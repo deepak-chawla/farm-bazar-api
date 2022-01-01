@@ -354,10 +354,10 @@ exports.searchProduct = async (req, res) => {
           .json(products.length > 0 ? { products: response } : { products: [] })
       })
       .catch((err) =>
-        res.status(200).json({ status: 'fail', message: err.message })
+        res.status(400).json({ status: 'fail', message: err.message })
       )
   } catch (error) {
-    res.status(200).json({ status: 'fail', message: error.message })
+    res.status(400).json({ status: 'fail', message: error.message })
   }
 }
 

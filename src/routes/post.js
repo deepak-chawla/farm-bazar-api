@@ -11,7 +11,12 @@ const {
 
 router.post('/post/add', requireSignIn, upload.single('image'), addPost)
 router.delete('/post/delete/:postId', requireSignIn, deletePost)
-router.post('/post/edit/:postId', requireSignIn, editPost)
+router.post(
+  '/post/edit/:postId',
+  requireSignIn,
+  upload.single('image'),
+  editPost
+)
 router.get('/post/get/:postId', getPostById)
 router.get('/post/getAllPosts', getAllPosts)
 
