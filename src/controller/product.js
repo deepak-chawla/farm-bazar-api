@@ -1,7 +1,6 @@
-const slugify = require('slugify')
-const product = require('../models/product')
 const Product = require('../models/product')
 const User = require('../models/user')
+const Order = require('../models/order')
 const cloudinary = require('../utils/cloudinary')
 const { addStr } = require('../helpers')
 
@@ -194,26 +193,53 @@ exports.getStoreProducts = async (req, res) => {
 exports.changeProductStatusById = async (req, res) => {
   try {
     const { isActive, productId } = req.query
+    const order = await Order.findOne({ productId: productId })
     const product = await Product.findById({ _id: productId })
     if (product.createdBy == req.user._id) {
-      product.isActive = isActive
-      product
-        .save()
-        .then((product) =>
-          res.status(200).json({
-            status: 'success',
-            message: `${product.productName} Status has changed to ${
-              isActive == 'true' ? 'Active' : 'Discontinued'
-            }`,
+      if (isActive == 'false') {
+        if (order) {
+          if (!order.isActive) {
+            product.isActive = isActive
+            product.save((err, saved) => {
+              if (!err) {
+                res.status(200).json({
+                  status: 'success',
+                  message: `Product Status Changed to Discontinued`,
+                })
+              }
+            })
+          } else {
+            res.status(200).json({
+              status: 'fail',
+              message: `Product has Active Order, Couldn't Discontinue`,
+            })
+          }
+        } else {
+          product.isActive = isActive
+          product.save((err, saved) => {
+            if (!err) {
+              res.status(200).json({
+                status: 'success',
+                message: `Product Status Changed to Discontinued`,
+              })
+            }
           })
-        )
-        .catch((error) =>
-          res.status(200).json({ status: 'fail', message: error.message })
-        )
+        }
+      } else {
+        product.isActive = isActive
+        product.save((err, saved) => {
+          if (!err) {
+            res.status(200).json({
+              status: 'success',
+              message: `Product Status Changed to Active`,
+            })
+          }
+        })
+      }
     } else {
       res
         .status(400)
-        .json({ status: 'fail', message: "Product doesn't match with seller" })
+        .json({ status: 'fail', message: 'product does not match with user' })
     }
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })

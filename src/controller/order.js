@@ -42,8 +42,9 @@ exports.addOrder = async (req, res) => {
           body: `${order.name} ordered ${product.productName}`,
         }
         const data = {
-          title: 'Order Detail',
-          body: `${JSON.stringify(order)}`,
+          title: 'New Order',
+          body: `${order.name} ordered ${product.productName}`,
+          for: 1,
         }
         notifyUser(product.createdBy.fcm_token, notification, data)
         res.status(201).json({
@@ -77,11 +78,10 @@ exports.getStoreOrders = async (req, res) => {
     let orders = await Order.find({
       $and: [{ storeId: storeId }, isActive ? { isActive: isActive } : {}],
     })
-      .sort({ createdAt: 'desc' })
       .populate('productId', 'productName productPictures unit price quantity')
+      .sort({ createdAt: 'desc' })
       .limit(limit)
       .skip(skip)
-
     orders = orders.map((order) => {
       return {
         _id: order._id,
@@ -190,8 +190,9 @@ exports.changeOrderStatusById = async (req, res) => {
             body: `order ${order.orderNumber} is ${order.orderStatus}`,
           }
           const data = {
-            title: 'Order Detail',
-            body: `${JSON.stringify(order)}`,
+            title: 'Your Order Status Changed',
+            body: `order ${order.orderNumber} is ${order.orderStatus}`,
+            for: 2,
           }
           notifyUser(order.buyerId.fcm_token, notification, data)
           res
