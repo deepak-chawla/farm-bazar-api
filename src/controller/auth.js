@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const { sendMail } = require('../helpers')
 const otpGenerator = require('otp-generator')
 const jwtDecode = require('jwt-decode')
-
+const path = require('path')
 const generateJwtToken = (_id, email) => {
   return jwt.sign({ _id, email }, process.env.JWT_KEY)
 }
@@ -92,10 +92,7 @@ exports.verifyEmail = async (req, res) => {
   if (user) {
     user.isActive = true
     user.save()
-    res.status(200).json({
-      status: 'success',
-      message: 'Your account is activated, You can login now',
-    })
+    res.status(200).sendFile(path.join(__dirname + '/verifyMsg.html'))
   } else {
     res.status(400).json({
       status: 'fail',
@@ -216,7 +213,7 @@ exports.signin = async (req, res) => {
               })
             }
           } else {
-            return res.status(200).json({
+            return res.status(400).json({
               status: 'success',
               message: 'Please Activate Your Account',
             })
