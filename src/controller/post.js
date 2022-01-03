@@ -91,8 +91,15 @@ exports.editPost = async (req, res) => {
 exports.getPostById = async (req, res) => {
   try {
     const { postId } = req.params
-    const post = await Post.findById(postId)
-    res.status(200).json(post)
+    const post = await Post.findById(postId).populate(
+      'createdBy',
+      'firstName lastName'
+    )
+    if (post === null) {
+      res.status(400).json({ status: 'fail', message: 'Post does not Exist.' })
+    } else {
+      res.status(200).json(post)
+    }
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message })
   }
@@ -101,6 +108,8 @@ exports.getPostById = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     let posts = await Post.find({})
+      .populate('createdBy', 'firstName lastName')
+      .sort({ createdAt: 'desc' })
     posts = posts.map((post) => {
       return {
         ...post._doc,
@@ -115,7 +124,9 @@ exports.getAllPosts = async (req, res) => {
 
 exports.getMyPosts = async (req, res) => {
   try {
-    let posts = await Post.find({ createdBy: req.user._id })
+    let posts = await Post.find({ createdBy: req.user._id }).sort({
+      createdAt: 'desc',
+    })
     posts = posts.map((post) => {
       return {
         ...post._doc,
@@ -132,7 +143,10 @@ exports.searchPost = async (req, res) => {
   try {
     let { query } = req.query
     const regex = RegExp(query, 'i')
-    let posts = await Post.find({ title: regex })
+    let posts = await Post.find({ title: regex }).populate(
+      'createdBy',
+      'firstName lastName'
+    )
     posts = posts.map((post) => {
       return {
         ...post._doc,
