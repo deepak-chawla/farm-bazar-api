@@ -124,9 +124,11 @@ exports.getAllPosts = async (req, res) => {
 
 exports.getMyPosts = async (req, res) => {
   try {
-    let posts = await Post.find({ createdBy: req.user._id }).sort({
-      createdAt: 'desc',
-    })
+    let posts = await Post.find({ createdBy: req.user._id })
+      .populate('createdBy', 'firstName lastName')
+      .sort({
+        createdAt: 'desc',
+      })
     posts = posts.map((post) => {
       return {
         ...post._doc,
