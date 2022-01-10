@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
+const Order = require('../models/order')
 const bcrypt = require('bcrypt')
 const { sendMail } = require('../helpers')
 const otpGenerator = require('otp-generator')
@@ -231,4 +232,22 @@ exports.signin = async (req, res) => {
   } catch (error) {
     console.log(error.message)
   }
+}
+
+exports.getAllUsers = async (req, res) => {
+  User.find()
+    .then((users) => res.status(200).json(users))
+    .catch((err) =>
+      res.status(400).json({ status: 'fail', message: err.message })
+    )
+}
+
+exports.getAllOrders = async (req, res) => {
+  Order.find()
+    .populate('storeId', 'owner storeName')
+    .populate('productId', 'productName')
+    .then((orders) => res.status(200).json(orders))
+    .catch((err) =>
+      res.status(400).json({ status: 'fail', message: err.message })
+    )
 }
