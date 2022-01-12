@@ -40,6 +40,7 @@ exports.addOrder = async (req, res) => {
         const notification = {
           title: 'New Order',
           body: `${order.name} ordered ${product.productName}`,
+          icon: 'fambazzarlogo',
         }
         const data = {
           title: 'New Order',
@@ -188,6 +189,7 @@ exports.changeOrderStatusById = async (req, res) => {
           const notification = {
             title: 'Your Order Status Changed',
             body: `order ${order.orderNumber} is ${order.orderStatus}`,
+            icon: 'fambazzarlogo',
           }
           const data = {
             title: 'Your Order Status Changed',
