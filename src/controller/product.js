@@ -332,7 +332,7 @@ exports.searchProduct = async (req, res) => {
             productPicture = addStr(
               product.productPictures[0].img,
               49,
-              'w_80,h_80,c_fill'
+              'w_100,h_100,c_fill'
             )
           } else {
             productPicture = ''

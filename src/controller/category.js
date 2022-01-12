@@ -122,7 +122,9 @@ exports.latestProductsInCategory = async (req, res) => {
     const categories = await Category.find({})
     let response = []
     for (cate of categories) {
-      let products = await Product.find({ category: cate._id })
+      let products = await Product.find({
+        $and: [{ category: cate._id }, { isActive: true }],
+      })
         .sort({ createdAt: 'desc' })
         .select('_id productName productPictures')
         .limit(10)
@@ -136,7 +138,7 @@ exports.latestProductsInCategory = async (req, res) => {
         }
         let thumbnail
         if (imageUrl) {
-          thumbnail = addStr(imageUrl, 49, 'w_80,h_80,c_fill')
+          thumbnail = addStr(imageUrl, 49, 'w_100,h_100,c_fill')
         }
         return {
           productId: product._id,
